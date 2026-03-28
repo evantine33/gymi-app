@@ -300,14 +300,14 @@ export default function MemberDashboard() {
   const { start, end } = getWeekRange()
 
   const isNonMember = currentUser.role === 'nonmember'
+  const gymId = currentUser.gymId
 
-  // Gym members see WOD (assignedTo null/undefined) + their own programs
-  // Non-members only see workouts explicitly assigned to them
-  const myWorkouts = state.workouts.filter(w =>
-    isNonMember
-      ? w.assignedTo === currentUser.id
-      : (w.assignedTo === null || w.assignedTo === undefined || w.assignedTo === currentUser.id)
-  )
+  // Scope to this gym, then apply member/nonmember visibility rules
+  const myWorkouts = state.workouts.filter(w => {
+    if (w.gymId !== gymId) return false
+    if (isNonMember) return w.assignedTo === currentUser.id
+    return w.assignedTo === null || w.assignedTo === undefined || w.assignedTo === currentUser.id
+  })
 
   const thisWeekWorkouts = myWorkouts
     .filter(w => w.date >= start && w.date <= end)

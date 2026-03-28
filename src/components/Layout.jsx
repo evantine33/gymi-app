@@ -1,18 +1,28 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { Dumbbell, LayoutDashboard, Users, MessageCircle, Mail, UserCircle, ClipboardList, Layers } from 'lucide-react'
-import { useEffect } from 'react'
+import { Dumbbell, LayoutDashboard, Users, Mail, UserCircle, ClipboardList, Layers, Copy, Check } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Layout({ children }) {
-  const { currentUser, state } = useApp()
+  const { currentUser, currentGym, dispatch } = useApp()
   const navigate = useNavigate()
+  const [codeCopied, setCodeCopied] = useState(false)
 
-  useEffect(() => {
-    if (!currentUser) navigate('/login')
-  }, [currentUser])
+  const handleLogout = () => {
+    dispatch({ type: 'LOGOUT' })
+    navigate('/login')
+  }
+
+  const copyCode = () => {
+    if (!currentGym?.joinCode) return
+    navigator.clipboard.writeText(currentGym.joinCode)
+    setCodeCopied(true)
+    setTimeout(() => setCodeCopied(false), 2000)
+  }
 
   if (!currentUser) return null
 
+  const { state } = useApp()
   const unreadDMs = state.directMessages.filter(
     dm => dm.toId === currentUser.id && !dm.read
   ).length
@@ -34,34 +44,58 @@ export default function Layout({ children }) {
 
   const navItems = currentUser.role === 'coach' ? coachNav : memberNav
 
-  const activeClass = 'text-orange-400'
-  const inactiveClass = 'text-gray-500 hover:text-gray-300'
-
   return (
-    <div className="min-h-screen bg-gray-950 pb-20 md:pb-0 md:flex">
+    <div className="min-h-screen bg-black pb-20 md:pb-0 md:flex">
       {/* Sidebar (desktop) */}
-      <aside className="hidden md:flex flex-col w-56 min-h-screen bg-gray-900 border-r border-gray-800 fixed left-0 top-0 bottom-0">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-5 border-b border-gray-700">
-          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-black text-sm tracking-tight">SC</span>
+      <aside className="hidden md:flex flex-col w-56 min-h-screen bg-gray-900 border-r border-gray-700 fixed left-0 top-0 bottom-0">
+
+        {/* Gym name */}
+        <div className="px-5 py-4 border-b border-gray-700">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Dumbbell className="w-4 h-4 text-white" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-black text-sm uppercase tracking-wide truncate leading-tight">
+                {currentGym?.name ?? 'Gymi'}
+              </p>
+              <p className="text-[10px] text-gray-500 leading-tight">powered by Gymi</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <span className="font-black text-sm uppercase tracking-wide leading-none block">Stretch</span>
-            <span className="font-black text-sm uppercase tracking-wide leading-none text-orange-500 block">Collective</span>
-          </div>
+
+          {/* Join code — coach only */}
+          {currentUser.role === 'coach' && currentGym && (
+            <button
+              onClick={copyCode}
+              className="mt-2.5 w-full flex items-center justify-between bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg px-3 py-1.5 transition-colors group"
+              title="Copy join code"
+            >
+              <div className="text-left">
+                <p className="text-[10px] text-gray-500 leading-none mb-0.5">Member Join Code</p>
+                <p className="font-mono font-bold text-orange-400 tracking-widest text-sm">
+                  {currentGym.joinCode}
+                </p>
+              </div>
+              <div className="text-gray-500 group-hover:text-white transition-colors">
+                {codeCopied
+                  ? <Check className="w-3.5 h-3.5 text-green-400" />
+                  : <Copy className="w-3.5 h-3.5" />
+                }
+              </div>
+            </button>
+          )}
         </div>
 
         {/* User pill */}
-        <div className="px-4 py-3 border-b border-gray-800">
+        <div className="px-4 py-3 border-b border-gray-700">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-orange-400">
+            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-orange-400 flex-shrink-0">
               {currentUser.initials}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">{currentUser.name}</p>
               <p className="text-xs text-gray-500">
-                {currentUser.role === 'nonmember' ? 'Non-Member' : currentUser.role === 'coach' ? 'Coach' : 'Gym Member'}
+                {currentUser.role === 'coach' ? 'Coach' : currentUser.role === 'nonmember' ? 'Non-Member' : 'Gym Member'}
               </p>
             </div>
           </div>
@@ -78,7 +112,7 @@ export default function Layout({ children }) {
               }
             >
               <div className="relative">
-                <Icon className="w-4.5 h-4.5 w-5 h-5" />
+                <Icon className="w-5 h-5" />
                 {badge > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-orange-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
                     {badge}
@@ -89,6 +123,16 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
         </nav>
+
+        {/* Sign out */}
+        <div className="px-3 pb-4 border-t border-gray-700 pt-3">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}
@@ -97,7 +141,7 @@ export default function Layout({ children }) {
       </main>
 
       {/* Bottom nav (mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 z-40">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 z-40">
         <div className="flex">
           {navItems.map(({ to, icon: Icon, label, badge }) => (
             <NavLink

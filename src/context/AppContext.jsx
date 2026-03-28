@@ -1,52 +1,66 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import { generateJoinCode } from '../utils/gymUtils'
 
 const AppContext = createContext(null)
 
-// ─── Seed Data ───────────────────────────────────────────────────────────────
+// ─── Seed Data (Demo Gym) ─────────────────────────────────────────────────────
+const SEED_GYM_ID = 'gym-seed'
+
+const SEED_GYM = {
+  id: SEED_GYM_ID,
+  name: 'Demo Gym',
+  joinCode: 'DEMO01',
+  createdBy: 'coach-1',
+  createdAt: '2024-01-01T00:00:00.000Z',
+}
+
 const SEED_USERS = [
   {
     id: 'coach-1',
     name: 'Coach Mike',
-    email: 'coach@ironhub.com',
+    email: 'coach@demo.com',
     phone: '555-000-0001',
     password: 'coach123',
     role: 'coach',
+    gymId: SEED_GYM_ID,
     joinDate: '2024-01-01',
     initials: 'CM',
   },
   {
     id: 'member-1',
     name: 'Alex Rivera',
-    email: 'alex@ironhub.com',
+    email: 'alex@demo.com',
     phone: '555-100-0001',
     password: 'member123',
     role: 'member',
+    gymId: SEED_GYM_ID,
     joinDate: '2024-02-10',
     initials: 'AR',
   },
   {
     id: 'member-2',
     name: 'Sarah Kim',
-    email: 'sarah@ironhub.com',
+    email: 'sarah@demo.com',
     phone: '555-100-0002',
     password: 'member123',
     role: 'member',
+    gymId: SEED_GYM_ID,
     joinDate: '2024-03-05',
     initials: 'SK',
   },
   {
     id: 'member-3',
     name: 'Jordan Hayes',
-    email: 'jordan@ironhub.com',
+    email: 'jordan@demo.com',
     phone: '555-100-0003',
     password: 'member123',
     role: 'member',
+    gymId: SEED_GYM_ID,
     joinDate: '2024-03-20',
     initials: 'JH',
   },
 ]
 
-// Returns YYYY-MM-DD for a date offset by `offset` days from Monday of the current week
 const getWeekDate = (offset = 0) => {
   const d = new Date()
   const day = d.getDay()
@@ -59,100 +73,39 @@ const SEED_WORKOUTS = [
   {
     id: 'workout-1',
     title: 'Strength Block',
-    date: getWeekDate(0), // Monday
+    date: getWeekDate(0),
+    gymId: SEED_GYM_ID,
     createdBy: 'coach-1',
     createdAt: new Date().toISOString(),
     exercises: [
-      {
-        id: 'ex-1',
-        name: 'Back Squat',
-        sets: 5,
-        reps: '5',
-        targetWeight: '225 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=ultWZbUMPL8',
-        notes: 'Focus on depth — break parallel. Rest 3 min between sets.',
-      },
-      {
-        id: 'ex-2',
-        name: 'Romanian Deadlift',
-        sets: 4,
-        reps: '8',
-        targetWeight: '185 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=7j-2GmGMqQI',
-        notes: 'Keep the bar close to your body. Slight knee bend.',
-      },
-      {
-        id: 'ex-3',
-        name: 'Bench Press',
-        sets: 4,
-        reps: '8',
-        targetWeight: '155 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=rT7DgCr-3pg',
-        notes: 'Retract scapula before unracking. Control the descent.',
-      },
-      {
-        id: 'ex-4',
-        name: 'Pull-Ups',
-        sets: 3,
-        reps: '8-10',
-        targetWeight: 'Bodyweight',
-        demoUrl: 'https://www.youtube.com/watch?v=eGo4IYlbE5g',
-        notes: 'Full range of motion — dead hang to chin over bar.',
-      },
+      { id: 'ex-1', name: 'Back Squat', sets: 5, reps: '5', targetWeight: '225 lbs', demoUrl: 'https://www.youtube.com/watch?v=ultWZbUMPL8', notes: 'Focus on depth — break parallel. Rest 3 min between sets.' },
+      { id: 'ex-2', name: 'Romanian Deadlift', sets: 4, reps: '8', targetWeight: '185 lbs', demoUrl: 'https://www.youtube.com/watch?v=7j-2GmGMqQI', notes: 'Keep the bar close to your body. Slight knee bend.' },
+      { id: 'ex-3', name: 'Bench Press', sets: 4, reps: '8', targetWeight: '155 lbs', demoUrl: 'https://www.youtube.com/watch?v=rT7DgCr-3pg', notes: 'Retract scapula before unracking. Control the descent.' },
+      { id: 'ex-4', name: 'Pull-Ups', sets: 3, reps: '8-10', targetWeight: 'Bodyweight', demoUrl: 'https://www.youtube.com/watch?v=eGo4IYlbE5g', notes: 'Full range of motion — dead hang to chin over bar.' },
     ],
   },
   {
     id: 'workout-2',
     title: 'Conditioning',
-    date: getWeekDate(2), // Wednesday
+    date: getWeekDate(2),
+    gymId: SEED_GYM_ID,
     createdBy: 'coach-1',
     createdAt: new Date().toISOString(),
     exercises: [
-      {
-        id: 'ex-5',
-        name: 'Overhead Press',
-        sets: 4,
-        reps: '6',
-        targetWeight: '95 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=2yjwXTZQDDI',
-        notes: 'Brace your core. Drive the bar straight up.',
-      },
-      {
-        id: 'ex-6',
-        name: 'Barbell Row',
-        sets: 4,
-        reps: '8',
-        targetWeight: '155 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ',
-        notes: 'Keep your back flat. Pull to your lower chest.',
-      },
+      { id: 'ex-5', name: 'Overhead Press', sets: 4, reps: '6', targetWeight: '95 lbs', demoUrl: 'https://www.youtube.com/watch?v=2yjwXTZQDDI', notes: 'Brace your core. Drive the bar straight up.' },
+      { id: 'ex-6', name: 'Barbell Row', sets: 4, reps: '8', targetWeight: '155 lbs', demoUrl: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ', notes: 'Keep your back flat. Pull to your lower chest.' },
     ],
   },
   {
     id: 'workout-3',
     title: 'Power Day',
-    date: getWeekDate(4), // Friday
+    date: getWeekDate(4),
+    gymId: SEED_GYM_ID,
     createdBy: 'coach-1',
     createdAt: new Date().toISOString(),
     exercises: [
-      {
-        id: 'ex-7',
-        name: 'Deadlift',
-        sets: 5,
-        reps: '3',
-        targetWeight: '275 lbs',
-        demoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
-        notes: 'Drive the floor away. Keep lats tight off the floor.',
-      },
-      {
-        id: 'ex-8',
-        name: 'Box Jump',
-        sets: 4,
-        reps: '5',
-        targetWeight: 'Bodyweight',
-        demoUrl: '',
-        notes: 'Full hip extension at the top. Step down, never jump down.',
-      },
+      { id: 'ex-7', name: 'Deadlift', sets: 5, reps: '3', targetWeight: '275 lbs', demoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q', notes: 'Drive the floor away. Keep lats tight off the floor.' },
+      { id: 'ex-8', name: 'Box Jump', sets: 4, reps: '5', targetWeight: 'Bodyweight', demoUrl: '', notes: 'Full hip extension at the top. Step down, never jump down.' },
     ],
   },
 ]
@@ -160,14 +113,16 @@ const SEED_WORKOUTS = [
 const SEED_COMMUNITY = [
   {
     id: 'msg-1',
+    gymId: SEED_GYM_ID,
     userId: 'coach-1',
     userName: 'Coach Mike',
     initials: 'CM',
-    text: 'Welcome to Stretch Collective! Big week ahead — let\'s get after it 💪',
+    text: 'Welcome! Big week ahead — let\'s get after it 💪',
     timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
   },
   {
     id: 'msg-2',
+    gymId: SEED_GYM_ID,
     userId: 'member-1',
     userName: 'Alex Rivera',
     initials: 'AR',
@@ -176,6 +131,7 @@ const SEED_COMMUNITY = [
   },
   {
     id: 'msg-3',
+    gymId: SEED_GYM_ID,
     userId: 'member-2',
     userName: 'Sarah Kim',
     initials: 'SK',
@@ -184,10 +140,11 @@ const SEED_COMMUNITY = [
   },
   {
     id: 'msg-4',
+    gymId: SEED_GYM_ID,
     userId: 'coach-1',
     userName: 'Coach Mike',
     initials: 'CM',
-    text: 'Sarah — think about pushing your hips back to the wall behind you. I\'ll demo before class tomorrow!',
+    text: 'Sarah — think about pushing your hips back to the wall behind you. I\'ll demo before class!',
     timestamp: new Date(Date.now() - 3600000 * 1).toISOString(),
   },
 ]
@@ -195,6 +152,7 @@ const SEED_COMMUNITY = [
 const SEED_LOGS = [
   {
     id: 'log-1',
+    gymId: SEED_GYM_ID,
     userId: 'member-1',
     workoutId: 'workout-1',
     exerciseId: 'ex-1',
@@ -213,7 +171,7 @@ const SEED_LOGS = [
 // ─── Initial State ────────────────────────────────────────────────────────────
 const loadState = () => {
   try {
-    const raw = localStorage.getItem('ironhub_state')
+    const raw = localStorage.getItem('gymi_state')
     if (raw) return JSON.parse(raw)
   } catch {}
   return null
@@ -221,9 +179,10 @@ const loadState = () => {
 
 const getInitialState = () => {
   const saved = loadState()
-  if (saved) return { programs: [], ...saved }
+  if (saved) return { gyms: [], programs: [], ...saved }
   return {
     currentUserId: null,
+    gyms: [SEED_GYM],
     users: SEED_USERS,
     workouts: SEED_WORKOUTS,
     workoutLogs: SEED_LOGS,
@@ -243,15 +202,49 @@ function reducer(state, action) {
       return { ...state, currentUserId: null }
 
     case 'REGISTER': {
-      const role = action.user.role === 'nonmember' ? 'nonmember' : 'member'
+      const validRoles = ['coach', 'member', 'nonmember']
+      const role = validRoles.includes(action.user.role) ? action.user.role : 'member'
       const newUser = {
         ...action.user,
         id: role + '-' + Date.now(),
         role,
+        gymId: null, // assigned after CREATE_GYM or JOIN_GYM
         joinDate: new Date().toISOString().split('T')[0],
         initials: action.user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
       }
       return { ...state, users: [...state.users, newUser] }
+    }
+
+    case 'CREATE_GYM': {
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
+      if (!currentUser) return state
+      const newGym = {
+        id: 'gym-' + Date.now(),
+        name: action.name,
+        joinCode: generateJoinCode(),
+        createdBy: state.currentUserId,
+        createdAt: new Date().toISOString(),
+      }
+      const updatedUsers = state.users.map(u =>
+        u.id === state.currentUserId ? { ...u, gymId: newGym.id } : u
+      )
+      return { ...state, gyms: [...state.gyms, newGym], users: updatedUsers }
+    }
+
+    case 'JOIN_GYM': {
+      const updatedUsers = state.users.map(u =>
+        u.id === state.currentUserId ? { ...u, gymId: action.gymId } : u
+      )
+      return { ...state, users: updatedUsers }
+    }
+
+    case 'UPDATE_GYM': {
+      return {
+        ...state,
+        gyms: state.gyms.map(g =>
+          g.id === action.gymId ? { ...g, ...action.data } : g
+        ),
+      }
     }
 
     case 'UPDATE_PROFILE': {
@@ -262,9 +255,11 @@ function reducer(state, action) {
     }
 
     case 'ADD_WORKOUT': {
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
       const workout = {
         ...action.workout,
         id: 'workout-' + Date.now(),
+        gymId: currentUser?.gymId || null,
         createdBy: state.currentUserId,
         createdAt: new Date().toISOString(),
       }
@@ -291,11 +286,13 @@ function reducer(state, action) {
 
     // ── Programs ──────────────────────────────────────────────────────────────
     case 'ADD_PROGRAM': {
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
       const program = {
         id: 'prog-' + Date.now(),
         name: action.name,
         description: action.description || '',
         totalWeeks: action.totalWeeks || 12,
+        gymId: currentUser?.gymId || null,
         createdBy: state.currentUserId,
         createdAt: new Date().toISOString(),
         weeks: {},
@@ -342,7 +339,6 @@ function reducer(state, action) {
       }
 
     case 'COPY_PROGRAM_WEEK': {
-      // Copy all workouts from one week to another
       const prog = state.programs.find(p => p.id === action.programId)
       if (!prog) return state
       const srcWorkouts = prog.weeks[String(action.fromWeek)] || []
@@ -361,6 +357,7 @@ function reducer(state, action) {
     case 'DEPLOY_PROGRAM': {
       const prog = state.programs.find(p => p.id === action.programId)
       if (!prog) return state
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
       const DAY_OFFSETS = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 }
       const start = new Date(action.startDate + 'T12:00:00')
       const newWorkouts = []
@@ -372,6 +369,7 @@ function reducer(state, action) {
             id: 'workout-' + Date.now() + '-' + Math.random().toString(36).slice(2),
             title: pw.title,
             date: d.toISOString().split('T')[0],
+            gymId: currentUser?.gymId || null,
             createdBy: state.currentUserId,
             createdAt: new Date().toISOString(),
             exercises: pw.exercises.map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2) })),
@@ -400,8 +398,10 @@ function reducer(state, action) {
           ),
         }
       }
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
       const newLog = {
         id: 'log-' + Date.now(),
+        gymId: currentUser?.gymId || null,
         userId: state.currentUserId,
         workoutId: action.log.workoutId,
         exerciseId: action.log.exerciseId,
@@ -416,6 +416,7 @@ function reducer(state, action) {
       const user = state.users.find(u => u.id === state.currentUserId)
       const msg = {
         id: 'cmsg-' + Date.now(),
+        gymId: user?.gymId || null,
         userId: state.currentUserId,
         userName: user.name,
         initials: user.initials,
@@ -459,14 +460,15 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem('ironhub_state', JSON.stringify(state))
+      localStorage.setItem('gymi_state', JSON.stringify(state))
     } catch {}
   }, [state])
 
   const currentUser = state.users.find(u => u.id === state.currentUserId) || null
+  const currentGym = state.gyms.find(g => g.id === currentUser?.gymId) || null
 
   return (
-    <AppContext.Provider value={{ state, dispatch, currentUser }}>
+    <AppContext.Provider value={{ state, dispatch, currentUser, currentGym }}>
       {children}
     </AppContext.Provider>
   )

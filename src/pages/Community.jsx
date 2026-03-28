@@ -17,9 +17,13 @@ export default function Community() {
   const [text, setText] = useState('')
   const bottomRef = useRef(null)
 
+  const gymId = currentUser?.gymId
+  const gymMessages = state.communityMessages.filter(m => m.gymId === gymId)
+  const gymMemberCount = state.users.filter(u => u.gymId === gymId && u.role === 'member').length
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [state.communityMessages])
+  }, [gymMessages.length])
 
   const send = (e) => {
     e.preventDefault()
@@ -34,15 +38,15 @@ export default function Community() {
       <div className="px-4 pt-6 pb-3 flex-shrink-0">
         <h1 className="text-2xl font-bold">Community</h1>
         <p className="text-gray-400 text-sm mt-0.5">
-          {state.users.filter(u => u.role === 'member').length} members · Open channel
+          {gymMemberCount} members · Open channel
         </p>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 pb-2 space-y-3">
-        {state.communityMessages.map((msg, i) => {
+        {gymMessages.map((msg, i) => {
           const isMe = msg.userId === currentUser.id
-          const prevMsg = state.communityMessages[i - 1]
+          const prevMsg = gymMessages[i - 1]
           const showHeader = !prevMsg || prevMsg.userId !== msg.userId
 
           return (

@@ -107,7 +107,8 @@ export default function DirectMessages() {
   const { state, currentUser } = useApp()
   const [selected, setSelected] = useState(null)
 
-  const contacts = state.users.filter(u => u.id !== currentUser.id)
+  // Only show people in the same gym
+  const contacts = state.users.filter(u => u.id !== currentUser.id && u.gymId === currentUser.gymId)
 
   const getLastMessage = (userId) => {
     const msgs = state.directMessages.filter(

@@ -389,23 +389,29 @@ function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAdd
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function CoachDashboard() {
-  const { state, dispatch } = useApp()
+  const { state, dispatch, currentUser, currentGym } = useApp()
   const [selectedDate, setSelectedDate] = useState(TODAY)
   const [showAdd, setShowAdd] = useState(false)
+
+  // Scope all data to this coach's gym
+  const gymId = currentUser?.gymId
+  const gymWorkouts = state.workouts.filter(w => w.gymId === gymId)
+  const gymUsers = state.users.filter(u => u.gymId === gymId)
+  const gymLogs = state.workoutLogs.filter(l => l.gymId === gymId)
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="mb-5">
-        <h1 className="text-2xl font-bold">Coach Dashboard</h1>
+        <h1 className="text-2xl font-bold">{currentGym?.name ?? 'Dashboard'}</h1>
         <p className="text-gray-400 text-sm mt-0.5">
-          {state.workouts.length} workout{state.workouts.length !== 1 ? 's' : ''} scheduled
+          {gymWorkouts.length} workout{gymWorkouts.length !== 1 ? 's' : ''} scheduled · {gymUsers.filter(u => u.role === 'member').length} members
         </p>
       </div>
 
       {/* Calendar */}
       <div className="mb-5">
         <Calendar
-          workouts={state.workouts}
+          workouts={gymWorkouts}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
         />
@@ -415,9 +421,9 @@ export default function CoachDashboard() {
       {selectedDate && (
         <DayDetail
           date={selectedDate}
-          workouts={state.workouts}
-          members={state.users}
-          logs={state.workoutLogs}
+          workouts={gymWorkouts}
+          members={gymUsers}
+          logs={gymLogs}
           onDelete={(id) => dispatch({ type: 'DELETE_WORKOUT', workoutId: id })}
           onDuplicate={(id) => dispatch({ type: 'DUPLICATE_WORKOUT', workoutId: id })}
           onAddWorkout={() => setShowAdd(true)}

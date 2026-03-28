@@ -173,8 +173,11 @@ function DeployModal({ program, onClose }) {
   const [assignTo, setAssignTo] = useState('all') // 'all' | userId
   const [deployed, setDeployed] = useState(false)
 
-  // Both gym members and non-members can be assigned programs
-  const members = state.users.filter(u => u.role === 'member' || u.role === 'nonmember')
+  // Both gym members and non-members in this gym can be assigned programs
+  const gymId = state.users.find(u => u.id === state.currentUserId)?.gymId
+  const members = state.users.filter(u =>
+    u.gymId === gymId && (u.role === 'member' || u.role === 'nonmember')
+  )
   const DAY_OFFSETS = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 }
 
   // Count total workouts that will be created
@@ -482,9 +485,11 @@ function ProgramEditor({ programId, onBack }) {
 
 // ─── Program List ─────────────────────────────────────────────────────────────
 function ProgramList({ onEdit }) {
-  const { state, dispatch } = useApp()
+  const { state, dispatch, currentUser } = useApp()
   const [showNew, setShowNew] = useState(false)
   const [deploying, setDeploying] = useState(null)
+
+  const gymPrograms = state.programs.filter(p => p.gymId === currentUser?.gymId)
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -498,7 +503,7 @@ function ProgramList({ onEdit }) {
         </button>
       </div>
 
-      {state.programs.length === 0 ? (
+      {gymPrograms.length === 0 ? (
         <div className="card text-center py-14">
           <Layers className="w-12 h-12 text-gray-700 mx-auto mb-3" />
           <p className="text-gray-300 font-semibold">No programs yet</p>
@@ -509,7 +514,7 @@ function ProgramList({ onEdit }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {state.programs.map(prog => {
+          {gymPrograms.map(prog => {
             const totalWorkouts = Object.values(prog.weeks).reduce((n, w) => n + w.length, 0)
             const builtWeeks = Object.keys(prog.weeks).filter(k => prog.weeks[k].length > 0).length
             const totalExercises = Object.values(prog.weeks).flat().reduce((n, w) => n + w.exercises.length, 0)
