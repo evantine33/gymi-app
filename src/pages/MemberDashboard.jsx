@@ -2,15 +2,31 @@ import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { ExternalLink, CheckCircle2, Circle, ChevronDown, ChevronUp, X, Flame, Trophy, Plus, Minus } from 'lucide-react'
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const DAY_COLORS = {
-  Monday: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  Tuesday: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  Wednesday: 'bg-green-500/20 text-green-400 border-green-500/30',
-  Thursday: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  Friday: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  Saturday: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-  Sunday: 'bg-red-500/20 text-red-400 border-red-500/30',
+const TODAY = new Date().toISOString().split('T')[0]
+
+function formatDayLabel(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long', month: 'short', day: 'numeric',
+  })
+}
+
+function formatShortDate(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric',
+  })
+}
+
+function getWeekRange() {
+  const d = new Date()
+  const day = d.getDay()
+  const monday = new Date(d)
+  monday.setDate(d.getDate() - day + (day === 0 ? -6 : 1))
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  return {
+    start: monday.toISOString().split('T')[0],
+    end: sunday.toISOString().split('T')[0],
+  }
 }
 
 // Build initial per-set rows from existing log or from target sets
@@ -233,16 +249,18 @@ function DayWorkoutCard({ workout, myLogs }) {
   const loggedCount = workout.exercises.filter(ex => myLogs.some(l => l.exerciseId === ex.id)).length
   const total = workout.exercises.length
   const pct = total ? Math.round((loggedCount / total) * 100) : 0
+  const isToday = workout.date === TODAY
 
   return (
-    <div className="card">
+    <div className={`card ${isToday ? 'border-orange-500/30' : ''}`}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${DAY_COLORS[workout.day] || 'bg-gray-700 text-gray-400 border-gray-600'}`}>
-            {workout.day}
-          </span>
-          <div>
-            <p className="font-semibold text-sm text-white">{workout.title}</p>
+        <div>
+          <div className="flex items-center gap-2 mb-0.5">
+            {isToday && <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full font-medium">Today</span>}
+            <p className="text-xs text-gray-400">{formatDayLabel(workout.date)}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-white">{workout.title}</p>
             <p className="text-xs text-gray-500">{loggedCount}/{total} exercises</p>
           </div>
         </div>
@@ -279,25 +297,21 @@ export default function MemberDashboard() {
   const { state, currentUser } = useApp()
   const myLogs = state.workoutLogs.filter(l => l.userId === currentUser.id)
 
-  // Get current week's Monday
-  const getMonday = () => {
-    const d = new Date()
-    const day = d.getDay()
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-    d.setDate(diff)
-    return d.toISOString().split('T')[0]
-  }
-  const currentWeek = getMonday()
+  const { start, end } = getWeekRange()
 
-  // Workouts for this week, sorted by day order
-  const DAY_ORDER = Object.fromEntries(DAYS.map((d, i) => [d, i]))
   const thisWeekWorkouts = state.workouts
-    .filter(w => w.weekOf === currentWeek)
-    .sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7))
+    .filter(w => w.date >= start && w.date <= end)
+    .sort((a, b) => a.date.localeCompare(b.date))
+
+  const upcomingWorkouts = state.workouts
+    .filter(w => w.date > end)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 5)
 
   const pastWorkouts = state.workouts
-    .filter(w => w.weekOf !== currentWeek)
-    .sort((a, b) => b.weekOf.localeCompare(a.weekOf))
+    .filter(w => w.date < start)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 5)
 
   const totalExercises = thisWeekWorkouts.reduce((n, w) => n + w.exercises.length, 0)
   const loggedExercises = thisWeekWorkouts.reduce((n, w) =>
@@ -306,13 +320,12 @@ export default function MemberDashboard() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Header */}
       <div className="mb-5">
         <h1 className="text-2xl font-bold">Hey, {currentUser.name.split(' ')[0]} 👊</h1>
         <p className="text-gray-400 text-sm mt-0.5">Let's get to work.</p>
       </div>
 
-      {/* Weekly progress summary */}
+      {/* Weekly progress */}
       {thisWeekWorkouts.length > 0 && (
         <div className="card mb-6 bg-gradient-to-br from-orange-900/30 to-gray-900 border-orange-800/30">
           <div className="flex items-center justify-between mb-3">
@@ -335,14 +348,18 @@ export default function MemberDashboard() {
             </div>
             <span className="text-sm font-bold text-white w-16 text-right">{loggedExercises}/{totalExercises}</span>
           </div>
-          {/* Day pills */}
           <div className="flex flex-wrap gap-1.5 mt-3">
             {thisWeekWorkouts.map(w => {
               const wLogged = w.exercises.filter(ex => myLogs.some(l => l.exerciseId === ex.id)).length
               const wDone = wLogged === w.exercises.length
+              const isToday = w.date === TODAY
               return (
-                <span key={w.id} className={`text-xs px-2 py-0.5 rounded-full font-medium border ${wDone ? 'bg-green-900/30 text-green-400 border-green-800/40' : DAY_COLORS[w.day] || 'bg-gray-700 text-gray-400 border-gray-600'}`}>
-                  {w.day} {wDone ? '✓' : `${wLogged}/${w.exercises.length}`}
+                <span key={w.id} className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
+                  wDone ? 'bg-green-900/30 text-green-400 border-green-800/40'
+                  : isToday ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                  : 'bg-gray-800 text-gray-400 border-gray-700'
+                }`}>
+                  {new Date(w.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short' })} {wDone ? '✓' : `${wLogged}/${w.exercises.length}`}
                 </span>
               )
             })}
@@ -350,7 +367,7 @@ export default function MemberDashboard() {
         </div>
       )}
 
-      {/* This week's workouts by day */}
+      {/* This week */}
       {thisWeekWorkouts.length > 0 ? (
         <div>
           <h2 className="font-bold text-gray-300 mb-3">This Week</h2>
@@ -363,28 +380,41 @@ export default function MemberDashboard() {
       ) : (
         <div className="card text-center py-12">
           <Flame className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">No workouts posted yet</p>
-          <p className="text-gray-600 text-sm mt-1">Check back after your coach posts this week's program</p>
+          <p className="text-gray-400 font-medium">No workouts this week</p>
+          <p className="text-gray-600 text-sm mt-1">Your coach hasn't posted this week's program yet</p>
         </div>
       )}
 
-      {/* Past weeks */}
+      {/* Coming up */}
+      {upcomingWorkouts.length > 0 && (
+        <div className="mt-8">
+          <h2 className="font-bold text-gray-300 mb-3">Coming Up</h2>
+          <div className="space-y-2">
+            {upcomingWorkouts.map(w => (
+              <div key={w.id} className="card flex items-center justify-between py-3">
+                <div>
+                  <p className="font-medium text-sm">{w.title}</p>
+                  <p className="text-xs text-gray-500">{formatShortDate(w.date)}</p>
+                </div>
+                <span className="text-xs text-gray-500">{w.exercises.length} exercises</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Past */}
       {pastWorkouts.length > 0 && (
         <div className="mt-8">
-          <h2 className="font-bold text-gray-300 mb-3">Past Weeks</h2>
+          <h2 className="font-bold text-gray-300 mb-3">Past Workouts</h2>
           <div className="space-y-2">
             {pastWorkouts.map(w => {
               const wLogs = myLogs.filter(l => l.workoutId === w.id).length
               return (
                 <div key={w.id} className="card flex items-center justify-between py-3">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${DAY_COLORS[w.day] || 'bg-gray-700 text-gray-400 border-gray-600'}`}>
-                      {w.day}
-                    </span>
-                    <div>
-                      <p className="font-medium text-sm">{w.title}</p>
-                      <p className="text-xs text-gray-500">{new Date(w.weekOf + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-                    </div>
+                  <div>
+                    <p className="font-medium text-sm">{w.title}</p>
+                    <p className="text-xs text-gray-500">{formatShortDate(w.date)}</p>
                   </div>
                   <span className="text-xs text-gray-400">{wLogs}/{w.exercises.length} logged</span>
                 </div>

@@ -46,20 +46,20 @@ const SEED_USERS = [
   },
 ]
 
-const getMonday = (d = new Date()) => {
-  const date = new Date(d)
-  const day = date.getDay()
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1)
-  date.setDate(diff)
-  return date.toISOString().split('T')[0]
+// Returns YYYY-MM-DD for a date offset by `offset` days from Monday of the current week
+const getWeekDate = (offset = 0) => {
+  const d = new Date()
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+  d.setDate(diff + offset)
+  return d.toISOString().split('T')[0]
 }
 
 const SEED_WORKOUTS = [
   {
     id: 'workout-1',
-    title: 'Week 1 — Strength Block',
-    weekOf: getMonday(),
-    day: 'Monday',
+    title: 'Strength Block',
+    date: getWeekDate(0), // Monday
     createdBy: 'coach-1',
     createdAt: new Date().toISOString(),
     exercises: [
@@ -103,9 +103,8 @@ const SEED_WORKOUTS = [
   },
   {
     id: 'workout-2',
-    title: 'Week 1 — Strength Block',
-    weekOf: getMonday(),
-    day: 'Wednesday',
+    title: 'Conditioning',
+    date: getWeekDate(2), // Wednesday
     createdBy: 'coach-1',
     createdAt: new Date().toISOString(),
     exercises: [
@@ -126,6 +125,33 @@ const SEED_WORKOUTS = [
         targetWeight: '155 lbs',
         demoUrl: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ',
         notes: 'Keep your back flat. Pull to your lower chest.',
+      },
+    ],
+  },
+  {
+    id: 'workout-3',
+    title: 'Power Day',
+    date: getWeekDate(4), // Friday
+    createdBy: 'coach-1',
+    createdAt: new Date().toISOString(),
+    exercises: [
+      {
+        id: 'ex-7',
+        name: 'Deadlift',
+        sets: 5,
+        reps: '3',
+        targetWeight: '275 lbs',
+        demoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
+        notes: 'Drive the floor away. Keep lats tight off the floor.',
+      },
+      {
+        id: 'ex-8',
+        name: 'Box Jump',
+        sets: 4,
+        reps: '5',
+        targetWeight: 'Bodyweight',
+        demoUrl: '',
+        notes: 'Full hip extension at the top. Step down, never jump down.',
       },
     ],
   },

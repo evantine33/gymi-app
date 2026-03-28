@@ -1,30 +1,29 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { Plus, Trash2, ExternalLink, ChevronDown, ChevronUp, Users, ClipboardList, X } from 'lucide-react'
+import {
+  Plus, Trash2, ExternalLink, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays
+} from 'lucide-react'
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const DAY_SHORT = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun' }
-const DAY_COLORS = {
-  Monday: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  Tuesday: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  Wednesday: 'bg-green-500/20 text-green-400 border-green-500/30',
-  Thursday: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  Friday: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  Saturday: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-  Sunday: 'bg-red-500/20 text-red-400 border-red-500/30',
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const TODAY = new Date().toISOString().split('T')[0]
+
+function formatDateLabel(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric',
+  })
 }
 
-function AddWorkoutModal({ onClose }) {
+function formatShortDate(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric',
+  })
+}
+
+// ─── Add Workout Modal ────────────────────────────────────────────────────────
+function AddWorkoutModal({ date, onClose }) {
   const { dispatch } = useApp()
   const [title, setTitle] = useState('')
-  const [weekOf, setWeekOf] = useState(() => {
-    const d = new Date()
-    const day = d.getDay()
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-    d.setDate(diff)
-    return d.toISOString().split('T')[0]
-  })
-  const [selectedDay, setSelectedDay] = useState('Monday')
   const [exercises, setExercises] = useState([
     { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' },
   ])
@@ -32,8 +31,7 @@ function AddWorkoutModal({ onClose }) {
   const addExercise = () =>
     setExercises(ex => [...ex, { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' }])
 
-  const removeExercise = (id) =>
-    setExercises(ex => ex.filter(e => e.id !== id))
+  const removeExercise = (id) => setExercises(ex => ex.filter(e => e.id !== id))
 
   const updateExercise = (id, field, value) =>
     setExercises(ex => ex.map(e => e.id === id ? { ...e, [field]: value } : e))
@@ -44,7 +42,7 @@ function AddWorkoutModal({ onClose }) {
       .filter(ex => ex.name.trim())
       .map(ex => ({ ...ex, id: 'ex-' + ex.id, sets: Number(ex.sets) || 1 }))
     if (!validExercises.length) return
-    dispatch({ type: 'ADD_WORKOUT', workout: { title, weekOf, day: selectedDay, exercises: validExercises } })
+    dispatch({ type: 'ADD_WORKOUT', workout: { title, date, exercises: validExercises } })
     onClose()
   }
 
@@ -52,46 +50,19 @@ function AddWorkoutModal({ onClose }) {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl my-4">
         <div className="flex items-center justify-between p-5 border-b border-gray-800">
-          <h2 className="text-lg font-bold">Add Workout</h2>
+          <div>
+            <h2 className="text-lg font-bold">Add Workout</h2>
+            <p className="text-sm text-orange-400 mt-0.5">{formatDateLabel(date)}</p>
+          </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
+
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
-
-          {/* Day selector */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Day of Week</label>
-            <div className="grid grid-cols-7 gap-1">
-              {DAYS.map(d => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setSelectedDay(d)}
-                  className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
-                    selectedDay === d
-                      ? DAY_COLORS[d] + ' border-current'
-                      : 'bg-gray-800 text-gray-500 border-gray-700 hover:text-gray-300'
-                  }`}
-                >
-                  {DAY_SHORT[d]}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-1.5">Selected: <span className="text-white font-medium">{selectedDay}</span></p>
+            <label className="block text-sm text-gray-400 mb-1">Workout Title</label>
+            <input className="input" placeholder="e.g. Strength Block, Conditioning Day..." value={title} onChange={e => setTitle(e.target.value)} required />
           </div>
 
-          {/* Title + Week */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Workout Title</label>
-              <input className="input" placeholder="e.g. Week 2 — Hypertrophy" value={title} onChange={e => setTitle(e.target.value)} required />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Week Of (Monday)</label>
-              <input type="date" className="input" value={weekOf} onChange={e => setWeekOf(e.target.value)} required />
-            </div>
-          </div>
-
-          {/* Exercises */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-300">Exercises</h3>
@@ -151,180 +122,304 @@ function AddWorkoutModal({ onClose }) {
   )
 }
 
-function MemberLogRow({ member, logs, workout }) {
-  const loggedCount = workout.exercises.filter(ex =>
-    logs.some(l => l.userId === member.id && l.exerciseId === ex.id)
-  ).length
-  const total = workout.exercises.length
-  const pct = total ? Math.round((loggedCount / total) * 100) : 0
+// ─── Calendar ─────────────────────────────────────────────────────────────────
+function Calendar({ workouts, selectedDate, onSelectDate }) {
+  const [viewDate, setViewDate] = useState(new Date())
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
 
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-orange-400">
-          {member.initials}
-        </div>
-        <div>
-          <p className="font-medium text-sm">{member.name}</p>
-          <p className="text-xs text-gray-500">{loggedCount}/{total} exercises logged</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="w-20 h-2 bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${pct === 100 ? 'bg-green-500' : pct > 0 ? 'bg-orange-500' : 'bg-gray-600'}`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <span className={`text-xs font-medium ${pct === 100 ? 'text-green-400' : pct > 0 ? 'text-orange-400' : 'text-gray-500'}`}>
-          {pct}%
-        </span>
-      </div>
-    </div>
-  )
-}
+  const firstDay = new Date(year, month, 1)
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  // Monday-first: Sun=0 → 6 leading, Mon=1 → 0 leading
+  const leadingBlanks = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
 
-function WorkoutPanel({ workout, members, logs, onDelete }) {
-  const [open, setOpen] = useState(true)
-  const [tab, setTab] = useState('program')
+  const cells = [
+    ...Array(leadingBlanks).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+
+  const toDateStr = (day) =>
+    `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+  const workoutsByDate = workouts.reduce((acc, w) => {
+    if (!acc[w.date]) acc[w.date] = []
+    acc[w.date].push(w)
+    return acc
+  }, {})
+
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
 
   return (
     <div className="card">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${DAY_COLORS[workout.day] || 'bg-gray-700 text-gray-400 border-gray-600'}`}>
-              {workout.day}
-            </span>
-          </div>
-          <h3 className="font-bold text-white">{workout.title}</h3>
-          <p className="text-sm text-gray-400 mt-0.5">
-            Week of {new Date(workout.weekOf + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={onDelete} className="text-gray-600 hover:text-red-400 transition-colors p-1">
-            <Trash2 className="w-4 h-4" />
-          </button>
-          <button onClick={() => setOpen(!open)} className="text-gray-400 hover:text-white p-1">
-            {open ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-          </button>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <h2 className="font-bold text-white">
+          {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </h2>
+        <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
 
-      {open && (
-        <div className="mt-4">
-          <div className="flex gap-1 mb-4 bg-gray-800 rounded-lg p-1">
-            {['program', 'members'].map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium py-1.5 rounded-md transition ${tab === t ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}
-              >
-                {t === 'program' ? <ClipboardList className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
-                {t === 'program' ? 'Program' : 'Member Logs'}
-              </button>
-            ))}
+      {/* Day-of-week headers */}
+      <div className="grid grid-cols-7 mb-1">
+        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+          <div key={d} className="text-center text-xs text-gray-600 font-semibold py-1 uppercase tracking-wide">
+            {d}
           </div>
+        ))}
+      </div>
 
-          {tab === 'program' ? (
-            <div className="space-y-3">
-              {workout.exercises.map((ex, i) => (
-                <div key={ex.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full font-medium">#{i + 1}</span>
-                        <h4 className="font-semibold text-white">{ex.name}</h4>
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-sm text-gray-400 mb-2">
-                        <span><span className="text-white font-medium">{ex.sets}</span> sets</span>
-                        <span>×</span>
-                        <span><span className="text-white font-medium">{ex.reps}</span> reps</span>
-                        {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
-                      </div>
-                      {ex.notes && <p className="text-xs text-gray-500 italic">"{ex.notes}"</p>}
-                    </div>
-                    {ex.demoUrl && (
-                      <a href={ex.demoUrl} target="_blank" rel="noreferrer" className="flex-shrink-0 text-orange-400 hover:text-orange-300">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                  </div>
+      {/* Day cells */}
+      <div className="grid grid-cols-7 gap-1">
+        {cells.map((day, i) => {
+          if (!day) return <div key={i} />
+          const dateStr = toDateStr(day)
+          const dayWorkouts = workoutsByDate[dateStr] || []
+          const isToday = dateStr === TODAY
+          const isSelected = dateStr === selectedDate
+          const isPast = dateStr < TODAY
+
+          return (
+            <button
+              key={i}
+              onClick={() => onSelectDate(isSelected ? null : dateStr)}
+              className={`relative flex flex-col items-center justify-start pt-1.5 pb-1 rounded-xl min-h-[52px] transition-all border ${
+                isSelected
+                  ? 'bg-orange-500 border-orange-400 text-white'
+                  : isToday
+                  ? 'bg-orange-500/15 border-orange-500/40 text-orange-300'
+                  : isPast
+                  ? 'border-transparent hover:bg-gray-800 text-gray-600 hover:text-gray-400'
+                  : 'border-transparent hover:bg-gray-800 text-gray-300'
+              }`}
+            >
+              <span className={`text-sm font-semibold leading-none ${isToday && !isSelected ? 'text-orange-400' : ''}`}>
+                {day}
+              </span>
+
+              {/* Workout dots */}
+              {dayWorkouts.length > 0 && (
+                <div className="flex gap-0.5 mt-1.5 flex-wrap justify-center px-1">
+                  {dayWorkouts.slice(0, 3).map((w, wi) => (
+                    <div
+                      key={wi}
+                      className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-400'}`}
+                    />
+                  ))}
+                  {dayWorkouts.length > 3 && (
+                    <span className={`text-[9px] leading-none ${isSelected ? 'text-white/70' : 'text-orange-400/70'}`}>
+                      +{dayWorkouts.length - 3}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div>
-              {members.filter(m => m.role === 'member').map(member => (
-                <MemberLogRow key={member.id} member={member} logs={logs} workout={workout} />
-              ))}
-            </div>
-          )}
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-800">
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="w-2 h-2 rounded-full bg-orange-400" />
+          Workout posted
         </div>
+        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="w-4 h-4 rounded-md bg-orange-500/15 border border-orange-500/40" />
+          Today
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Day Detail Panel ─────────────────────────────────────────────────────────
+function DayDetail({ date, workouts, members, logs, onDelete, onAddWorkout }) {
+  const [expandedId, setExpandedId] = useState(null)
+  const [tab, setTab] = useState({})
+
+  const dayWorkouts = workouts.filter(w => w.date === date)
+
+  return (
+    <div className="space-y-3">
+      {/* Day header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-bold text-white">{formatDateLabel(date)}</h3>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {dayWorkouts.length === 0
+              ? 'No workouts — rest day or add one below'
+              : `${dayWorkouts.length} workout${dayWorkouts.length > 1 ? 's' : ''} scheduled`}
+          </p>
+        </div>
+        <button onClick={onAddWorkout} className="btn-primary flex items-center gap-1.5 text-sm">
+          <Plus className="w-4 h-4" /> Add Workout
+        </button>
+      </div>
+
+      {/* Workouts for this day */}
+      {dayWorkouts.length === 0 ? (
+        <div className="card text-center py-8 border-dashed">
+          <CalendarDays className="w-8 h-8 text-gray-700 mx-auto mb-2" />
+          <p className="text-gray-500 text-sm">No workout for this day yet</p>
+        </div>
+      ) : (
+        dayWorkouts.map(workout => {
+          const currentTab = tab[workout.id] || 'program'
+          const isOpen = expandedId !== workout.id + '-closed'
+
+          return (
+            <div key={workout.id} className="card">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-white">{workout.title}</h4>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => onDelete(workout.id)}
+                    className="p-1.5 text-gray-600 hover:text-red-400 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setExpandedId(expandedId === workout.id + '-closed' ? null : workout.id + '-closed')}
+                    className="p-1.5 text-gray-400 hover:text-white"
+                  >
+                    {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {isOpen && (
+                <>
+                  <div className="flex gap-1 mt-3 mb-3 bg-gray-800 rounded-lg p-1">
+                    {['program', 'members'].map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setTab(prev => ({ ...prev, [workout.id]: t }))}
+                        className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-md transition ${
+                          currentTab === t ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        {t === 'program' ? <ClipboardList className="w-3 h-3" /> : <Users className="w-3 h-3" />}
+                        {t === 'program' ? 'Program' : 'Member Logs'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {currentTab === 'program' ? (
+                    <div className="space-y-2">
+                      {workout.exercises.map((ex, i) => (
+                        <div key={ex.id} className="bg-gray-800 rounded-xl p-3 border border-gray-700">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="text-xs bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full font-medium">#{i + 1}</span>
+                                <span className="font-semibold text-sm text-white">{ex.name}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-1">
+                                <span><span className="text-white font-medium">{ex.sets}</span> sets × <span className="text-white font-medium">{ex.reps}</span> reps</span>
+                                {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
+                              </div>
+                              {ex.notes && <p className="text-xs text-gray-500 italic">"{ex.notes}"</p>}
+                            </div>
+                            {ex.demoUrl && (
+                              <a href={ex.demoUrl} target="_blank" rel="noreferrer" className="text-orange-400 hover:text-orange-300 flex-shrink-0">
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>
+                      {members.filter(m => m.role === 'member').map(member => {
+                        const loggedCount = workout.exercises.filter(ex =>
+                          logs.some(l => l.userId === member.id && l.exerciseId === ex.id)
+                        ).length
+                        const total = workout.exercises.length
+                        const pct = total ? Math.round((loggedCount / total) * 100) : 0
+                        return (
+                          <div key={member.id} className="flex items-center justify-between py-2.5 border-b border-gray-800 last:border-0">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-orange-400">
+                                {member.initials}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium">{member.name}</p>
+                                <p className="text-xs text-gray-500">{loggedCount}/{total} logged</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${pct === 100 ? 'bg-green-500' : pct > 0 ? 'bg-orange-500' : 'bg-gray-600'}`}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                              <span className={`text-xs font-medium w-8 text-right ${pct === 100 ? 'text-green-400' : pct > 0 ? 'text-orange-400' : 'text-gray-500'}`}>
+                                {pct}%
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )
+        })
       )}
     </div>
   )
 }
 
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function CoachDashboard() {
   const { state, dispatch } = useApp()
+  const [selectedDate, setSelectedDate] = useState(TODAY)
   const [showAdd, setShowAdd] = useState(false)
-
-  // Group workouts by weekOf, then sort days within each week
-  const DAY_ORDER = Object.fromEntries(DAYS.map((d, i) => [d, i]))
-  const byWeek = state.workouts.reduce((acc, w) => {
-    if (!acc[w.weekOf]) acc[w.weekOf] = []
-    acc[w.weekOf].push(w)
-    return acc
-  }, {})
-  const sortedWeeks = Object.keys(byWeek).sort((a, b) => b.localeCompare(a))
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Coach Dashboard</h1>
-          <p className="text-gray-400 text-sm mt-0.5">{state.workouts.length} workout{state.workouts.length !== 1 ? 's' : ''} posted</p>
-        </div>
-        <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" /> New Workout
-        </button>
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold">Coach Dashboard</h1>
+        <p className="text-gray-400 text-sm mt-0.5">
+          {state.workouts.length} workout{state.workouts.length !== 1 ? 's' : ''} scheduled
+        </p>
       </div>
 
-      {sortedWeeks.length === 0 ? (
-        <div className="card text-center py-12">
-          <ClipboardList className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">No workouts posted yet</p>
-          <p className="text-gray-600 text-sm mt-1">Click "New Workout" to get started</p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {sortedWeeks.map(week => (
-            <div key={week}>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                Week of {new Date(week + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </h2>
-              <div className="space-y-3">
-                {byWeek[week]
-                  .slice()
-                  .sort((a, b) => (DAY_ORDER[a.day] ?? 7) - (DAY_ORDER[b.day] ?? 7))
-                  .map(workout => (
-                    <WorkoutPanel
-                      key={workout.id}
-                      workout={workout}
-                      members={state.users}
-                      logs={state.workoutLogs}
-                      onDelete={() => dispatch({ type: 'DELETE_WORKOUT', workoutId: workout.id })}
-                    />
-                  ))}
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Calendar */}
+      <div className="mb-5">
+        <Calendar
+          workouts={state.workouts}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
+      </div>
+
+      {/* Selected day detail */}
+      {selectedDate && (
+        <DayDetail
+          date={selectedDate}
+          workouts={state.workouts}
+          members={state.users}
+          logs={state.workoutLogs}
+          onDelete={(id) => dispatch({ type: 'DELETE_WORKOUT', workoutId: id })}
+          onAddWorkout={() => setShowAdd(true)}
+        />
       )}
 
-      {showAdd && <AddWorkoutModal onClose={() => setShowAdd(false)} />}
+      {/* Add workout modal */}
+      {showAdd && selectedDate && (
+        <AddWorkoutModal date={selectedDate} onClose={() => setShowAdd(false)} />
+      )}
     </div>
   )
 }
