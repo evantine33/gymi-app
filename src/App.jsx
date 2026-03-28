@@ -12,6 +12,7 @@ import DirectMessages from './pages/DirectMessages'
 import Profile from './pages/Profile'
 import Programs from './pages/Programs'
 import Members from './pages/Members'
+import Stats from './pages/Stats'
 
 // ─── Route Guard ──────────────────────────────────────────────────────────────
 function AppRoutes() {
@@ -57,6 +58,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<MemberDashboard />} />
         <Route path="/coach" element={<CoachDashboard />} />
         <Route path="/members" element={<Members />} />
+        <Route path="/stats" element={<Stats />} />
         <Route path="/programs" element={<Programs />} />
         <Route path="/community" element={<Community />} />
         <Route path="/messages" element={<DirectMessages />} />
