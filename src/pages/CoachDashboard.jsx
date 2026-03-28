@@ -4,6 +4,9 @@ import {
   Plus, Trash2, ExternalLink, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays, Copy
 } from 'lucide-react'
+import ExerciseBuilder, { newEx, groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const TODAY = new Date().toISOString().split('T')[0]
@@ -24,23 +27,13 @@ function formatShortDate(dateStr) {
 function AddWorkoutModal({ date, onClose }) {
   const { dispatch } = useApp()
   const [title, setTitle] = useState('')
-  const [exercises, setExercises] = useState([
-    { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' },
-  ])
-
-  const addExercise = () =>
-    setExercises(ex => [...ex, { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' }])
-
-  const removeExercise = (id) => setExercises(ex => ex.filter(e => e.id !== id))
-
-  const updateExercise = (id, field, value) =>
-    setExercises(ex => ex.map(e => e.id === id ? { ...e, [field]: value } : e))
+  const [exercises, setExercises] = useState([newEx()])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     const validExercises = exercises
       .filter(ex => ex.name.trim())
-      .map(ex => ({ ...ex, id: 'ex-' + ex.id, sets: Number(ex.sets) || 1 }))
+      .map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2), sets: Number(ex.sets) || 1 }))
     if (!validExercises.length) return
     dispatch({ type: 'ADD_WORKOUT', workout: { title, date, exercises: validExercises } })
     onClose()
@@ -60,56 +53,13 @@ function AddWorkoutModal({ date, onClose }) {
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Workout Title</label>
-            <input className="input" placeholder="e.g. Strength Block, Conditioning Day..." value={title} onChange={e => setTitle(e.target.value)} required />
+            <input className="input" placeholder="e.g. Strength Block, Conditioning Day..."
+              value={title} onChange={e => setTitle(e.target.value)} required />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-300">Exercises</h3>
-              <button type="button" onClick={addExercise} className="flex items-center gap-1 text-sm text-orange-400 hover:text-orange-300">
-                <Plus className="w-4 h-4" /> Add Exercise
-              </button>
-            </div>
-            <div className="space-y-4">
-              {exercises.map((ex, i) => (
-                <div key={ex.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-orange-400">Exercise {i + 1}</span>
-                    {exercises.length > 1 && (
-                      <button type="button" onClick={() => removeExercise(ex.id)} className="text-gray-500 hover:text-red-400">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="col-span-2">
-                      <label className="block text-xs text-gray-500 mb-1">Exercise Name *</label>
-                      <input className="input" placeholder="e.g. Back Squat" value={ex.name} onChange={e => updateExercise(ex.id, 'name', e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Sets</label>
-                      <input type="number" min="1" className="input" placeholder="4" value={ex.sets} onChange={e => updateExercise(ex.id, 'sets', e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Reps</label>
-                      <input className="input" placeholder="8 or 8-10" value={ex.reps} onChange={e => updateExercise(ex.id, 'reps', e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Target Weight</label>
-                      <input className="input" placeholder="135 lbs" value={ex.targetWeight} onChange={e => updateExercise(ex.id, 'targetWeight', e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">Demo URL</label>
-                      <input className="input" placeholder="YouTube link" value={ex.demoUrl} onChange={e => updateExercise(ex.id, 'demoUrl', e.target.value)} />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs text-gray-500 mb-1">Coach Notes</label>
-                      <textarea className="input resize-none" rows={2} placeholder="Technique cues, rest periods..." value={ex.notes} onChange={e => updateExercise(ex.id, 'notes', e.target.value)} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <h3 className="font-semibold text-gray-300 mb-3">Exercises</h3>
+            <ExerciseBuilder exercises={exercises} setExercises={setExercises} />
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -319,28 +269,67 @@ function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAdd
 
                   {currentTab === 'program' ? (
                     <div className="space-y-2">
-                      {workout.exercises.map((ex, i) => (
-                        <div key={ex.id} className="bg-gray-800 rounded-xl p-3 border border-gray-700">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <span className="text-xs bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full font-medium">#{i + 1}</span>
-                                <span className="font-semibold text-sm text-white">{ex.name}</span>
+                      {groupExercises(workout.exercises).map((item, gi) => {
+                        if (item.kind === 'single') {
+                          const ex = item.exercise
+                          return (
+                            <div key={ex.id} className="bg-gray-800 rounded-xl p-3 border border-gray-700">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="text-xs bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full font-medium">#{gi + 1}</span>
+                                    <span className="font-semibold text-sm text-white">{ex.name}</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-1">
+                                    <span><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
+                                    {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
+                                  </div>
+                                  {ex.notes && <p className="text-xs text-gray-500 italic">"{ex.notes}"</p>}
+                                </div>
+                                {ex.demoUrl && (
+                                  <a href={ex.demoUrl} target="_blank" rel="noreferrer" className="text-orange-400 hover:text-orange-300 flex-shrink-0">
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
                               </div>
-                              <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-1">
-                                <span><span className="text-white font-medium">{ex.sets}</span> sets × <span className="text-white font-medium">{ex.reps}</span> reps</span>
-                                {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
-                              </div>
-                              {ex.notes && <p className="text-xs text-gray-500 italic">"{ex.notes}"</p>}
                             </div>
-                            {ex.demoUrl && (
-                              <a href={ex.demoUrl} target="_blank" rel="noreferrer" className="text-orange-400 hover:text-orange-300 flex-shrink-0">
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </a>
-                            )}
+                          )
+                        }
+                        const style = GROUP_STYLES[item.kind] || GROUP_STYLES.superset
+                        return (
+                          <div key={item.groupId} className={`rounded-xl border ${style.border} overflow-hidden`}>
+                            <div className={`px-3 py-1.5 ${style.headerBg}`}>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.badge}`}>
+                                {style.label}
+                              </span>
+                            </div>
+                            <div className="divide-y divide-gray-800">
+                              {item.exercises.map((ex, i) => (
+                                <div key={ex.id} className="p-3 flex items-start justify-between gap-2">
+                                  <div className="flex items-start gap-2">
+                                    <div className={`w-5 h-5 rounded-full text-[10px] font-black text-white flex items-center justify-center flex-shrink-0 mt-0.5 ${style.letterBg}`}>
+                                      {LETTERS[i]}
+                                    </div>
+                                    <div>
+                                      <p className="font-semibold text-sm text-white">{ex.name}</p>
+                                      <div className="flex flex-wrap gap-2 text-xs text-gray-400 mt-0.5">
+                                        <span><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
+                                        {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
+                                      </div>
+                                      {ex.notes && <p className="text-xs text-gray-500 italic mt-0.5">"{ex.notes}"</p>}
+                                    </div>
+                                  </div>
+                                  {ex.demoUrl && (
+                                    <a href={ex.demoUrl} target="_blank" rel="noreferrer" className="text-orange-400 hover:text-orange-300 flex-shrink-0">
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   ) : (
                     <div>

@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { ExternalLink, CheckCircle2, Circle, ChevronDown, ChevronUp, X, Flame, Trophy, Plus, Minus } from 'lucide-react'
+import { groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 const TODAY = new Date().toISOString().split('T')[0]
 
@@ -284,9 +287,38 @@ function DayWorkoutCard({ workout, myLogs }) {
 
       {open && (
         <div className="mt-4 space-y-3">
-          {workout.exercises.map(ex => (
-            <ExerciseRow key={ex.id} exercise={ex} workoutId={workout.id} myLogs={myLogs} />
-          ))}
+          {groupExercises(workout.exercises).map((item, gi) => {
+            if (item.kind === 'single') {
+              return (
+                <ExerciseRow key={item.exercise.id} exercise={item.exercise} workoutId={workout.id} myLogs={myLogs} />
+              )
+            }
+            // Superset or Circuit group
+            const style = GROUP_STYLES[item.kind] || GROUP_STYLES.superset
+            const allLogged = item.exercises.every(ex => myLogs.some(l => l.exerciseId === ex.id))
+            return (
+              <div key={item.groupId} className={`rounded-xl border ${style.border} overflow-hidden`}>
+                <div className={`flex items-center justify-between px-3 py-1.5 ${style.headerBg}`}>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.badge}`}>
+                    {style.label} · {item.exercises.length} exercises
+                  </span>
+                  {allLogged && <span className="text-[10px] text-green-400 font-semibold">✓ Done</span>}
+                </div>
+                <div className="divide-y divide-gray-800 bg-gray-900/40">
+                  {item.exercises.map((ex, i) => (
+                    <div key={ex.id} className="relative">
+                      <div className={`absolute left-3 top-3 w-5 h-5 rounded-full text-[10px] font-black text-white flex items-center justify-center flex-shrink-0 z-10 ${style.letterBg}`}>
+                        {LETTERS[i]}
+                      </div>
+                      <div className="pl-10">
+                        <ExerciseRow exercise={ex} workoutId={workout.id} myLogs={myLogs} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

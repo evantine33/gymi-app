@@ -4,60 +4,10 @@ import {
   Plus, Trash2, ChevronLeft, ChevronRight, X, Copy,
   Layers, Rocket, BookOpen, Users, User, Check, ExternalLink
 } from 'lucide-react'
+import ExerciseBuilder, { newEx, groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-// ─── Shared exercise form ─────────────────────────────────────────────────────
-function ExerciseForm({ exercises, setExercises }) {
-  const add = () =>
-    setExercises(ex => [...ex, { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' }])
-  const remove = (id) => setExercises(ex => ex.filter(e => e.id !== id))
-  const update = (id, field, val) =>
-    setExercises(ex => ex.map(e => e.id === id ? { ...e, [field]: val } : e))
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-semibold text-gray-300">Exercises</span>
-        <button type="button" onClick={add} className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1">
-          <Plus className="w-3 h-3" /> Add Exercise
-        </button>
-      </div>
-      <div className="space-y-3">
-        {exercises.map((ex, i) => (
-          <div key={ex.id} className="bg-gray-800/60 rounded-xl p-3 border border-gray-700">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-orange-400">Exercise {i + 1}</span>
-              {exercises.length > 1 && (
-                <button type="button" onClick={() => remove(ex.id)} className="text-gray-500 hover:text-red-400">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="col-span-2">
-                <input className="input text-sm" placeholder="Exercise Name *" value={ex.name}
-                  onChange={e => update(ex.id, 'name', e.target.value)} required />
-              </div>
-              <input className="input text-sm" placeholder="Sets" type="number" min="1" value={ex.sets}
-                onChange={e => update(ex.id, 'sets', e.target.value)} />
-              <input className="input text-sm" placeholder="Reps (e.g. 8-10)" value={ex.reps}
-                onChange={e => update(ex.id, 'reps', e.target.value)} />
-              <input className="input text-sm" placeholder="Target Weight" value={ex.targetWeight}
-                onChange={e => update(ex.id, 'targetWeight', e.target.value)} />
-              <input className="input text-sm" placeholder="Demo URL" value={ex.demoUrl}
-                onChange={e => update(ex.id, 'demoUrl', e.target.value)} />
-              <div className="col-span-2">
-                <textarea className="input resize-none text-sm" rows={2} placeholder="Coach notes..."
-                  value={ex.notes} onChange={e => update(ex.id, 'notes', e.target.value)} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 // ─── New Program Modal ────────────────────────────────────────────────────────
 function NewProgramModal({ onClose }) {
@@ -119,15 +69,13 @@ function NewProgramModal({ onClose }) {
 function AddProgramWorkoutModal({ programId, week, day, onClose }) {
   const { dispatch } = useApp()
   const [title, setTitle] = useState('')
-  const [exercises, setExercises] = useState([
-    { id: Date.now(), name: '', sets: '', reps: '', targetWeight: '', demoUrl: '', notes: '' }
-  ])
+  const [exercises, setExercises] = useState([newEx()])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     const valid = exercises
       .filter(ex => ex.name.trim())
-      .map(ex => ({ ...ex, id: 'ex-' + ex.id, sets: Number(ex.sets) || 1 }))
+      .map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2), sets: Number(ex.sets) || 1 }))
     if (!valid.length) return
     dispatch({ type: 'ADD_PROGRAM_WORKOUT', programId, week, day, title, exercises: valid })
     onClose()
@@ -149,7 +97,10 @@ function AddProgramWorkoutModal({ programId, week, day, onClose }) {
             <input className="input" placeholder="e.g. Lower Body Strength" value={title}
               onChange={e => setTitle(e.target.value)} required />
           </div>
-          <ExerciseForm exercises={exercises} setExercises={setExercises} />
+          <div>
+            <h3 className="text-sm font-semibold text-gray-300 mb-2">Exercises</h3>
+            <ExerciseBuilder exercises={exercises} setExercises={setExercises} />
+          </div>
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Cancel</button>
             <button type="submit" className="btn-primary flex-1">Add to Program</button>
