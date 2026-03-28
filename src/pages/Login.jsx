@@ -39,11 +39,9 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mb-4">
-            <span className="text-white font-black text-xl tracking-tight">SC</span>
+            <Dumbbell className="w-9 h-9 text-white" />
           </div>
-          <h1 className="text-3xl font-black uppercase tracking-wide text-white leading-tight">Stretch</h1>
-          <h1 className="text-3xl font-black uppercase tracking-wide text-orange-500 leading-tight">Collective</h1>
-          <p className="text-gray-500 text-sm mt-2">EST. 2024</p>
+          <h1 className="text-4xl font-black text-white tracking-tight">Gymi</h1>
         </div>
 
         {/* Form */}
