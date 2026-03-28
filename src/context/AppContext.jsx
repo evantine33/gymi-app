@@ -243,10 +243,11 @@ function reducer(state, action) {
       return { ...state, currentUserId: null }
 
     case 'REGISTER': {
+      const role = action.user.role === 'nonmember' ? 'nonmember' : 'member'
       const newUser = {
         ...action.user,
-        id: 'member-' + Date.now(),
-        role: 'member',
+        id: role + '-' + Date.now(),
+        role,
         joinDate: new Date().toISOString().split('T')[0],
         initials: action.user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
       }

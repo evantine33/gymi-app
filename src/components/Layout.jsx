@@ -60,7 +60,9 @@ export default function Layout({ children }) {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">{currentUser.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{currentUser.role}</p>
+              <p className="text-xs text-gray-500">
+                {currentUser.role === 'nonmember' ? 'Non-Member' : currentUser.role === 'coach' ? 'Coach' : 'Gym Member'}
+              </p>
             </div>
           </div>
         </div>

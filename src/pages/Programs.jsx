@@ -173,7 +173,8 @@ function DeployModal({ program, onClose }) {
   const [assignTo, setAssignTo] = useState('all') // 'all' | userId
   const [deployed, setDeployed] = useState(false)
 
-  const members = state.users.filter(u => u.role === 'member')
+  // Both gym members and non-members can be assigned programs
+  const members = state.users.filter(u => u.role === 'member' || u.role === 'nonmember')
   const DAY_OFFSETS = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 }
 
   // Count total workouts that will be created
@@ -275,8 +276,8 @@ function DeployModal({ program, onClose }) {
               >
                 <Users className="w-4 h-4 text-orange-400 flex-shrink-0" />
                 <div className="text-left">
-                  <p className="text-sm font-medium">All Members</p>
-                  <p className="text-xs text-gray-500">Visible to everyone</p>
+                  <p className="text-sm font-medium">All Gym Members</p>
+                  <p className="text-xs text-gray-500">Visible to all gym members only</p>
                 </div>
                 {assignTo === 'all' && <Check className="w-4 h-4 text-orange-400 ml-auto" />}
               </button>
@@ -291,9 +292,11 @@ function DeployModal({ program, onClose }) {
                   <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-orange-400 flex-shrink-0">
                     {m.initials}
                   </div>
-                  <div className="text-left">
+                  <div className="text-left flex-1">
                     <p className="text-sm font-medium">{m.name}</p>
-                    <p className="text-xs text-gray-500">Individual program</p>
+                    <p className="text-xs text-gray-500">
+                      {m.role === 'nonmember' ? 'Non-Member' : 'Gym Member'} · Individual program
+                    </p>
                   </div>
                   {assignTo === m.id && <Check className="w-4 h-4 text-orange-400 ml-auto" />}
                 </button>

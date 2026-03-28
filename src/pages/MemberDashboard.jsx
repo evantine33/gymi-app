@@ -299,9 +299,14 @@ export default function MemberDashboard() {
 
   const { start, end } = getWeekRange()
 
-  // Show workouts assigned to this member OR assigned to everyone (null)
-  const myWorkouts = state.workouts.filter(
-    w => w.assignedTo === null || w.assignedTo === undefined || w.assignedTo === currentUser.id
+  const isNonMember = currentUser.role === 'nonmember'
+
+  // Gym members see WOD (assignedTo null/undefined) + their own programs
+  // Non-members only see workouts explicitly assigned to them
+  const myWorkouts = state.workouts.filter(w =>
+    isNonMember
+      ? w.assignedTo === currentUser.id
+      : (w.assignedTo === null || w.assignedTo === undefined || w.assignedTo === currentUser.id)
   )
 
   const thisWeekWorkouts = myWorkouts
@@ -326,8 +331,19 @@ export default function MemberDashboard() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="mb-5">
-        <h1 className="text-2xl font-bold">Hey, {currentUser.name.split(' ')[0]} 👊</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Let's get to work.</p>
+        <div className="flex items-center gap-2 mb-0.5">
+          <h1 className="text-2xl font-bold">Hey, {currentUser.name.split(' ')[0]} 👊</h1>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+            isNonMember
+              ? 'bg-gray-800 text-gray-400 border border-gray-700'
+              : 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
+          }`}>
+            {isNonMember ? 'Non-Member' : 'Gym Member'}
+          </span>
+        </div>
+        <p className="text-gray-400 text-sm">
+          {isNonMember ? 'Your assigned programs will appear here.' : "Let's get to work."}
+        </p>
       </div>
 
       {/* Weekly progress */}
@@ -385,8 +401,17 @@ export default function MemberDashboard() {
       ) : (
         <div className="card text-center py-12">
           <Flame className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">No workouts this week</p>
-          <p className="text-gray-600 text-sm mt-1">Your coach hasn't posted this week's program yet</p>
+          {isNonMember ? (
+            <>
+              <p className="text-gray-400 font-medium">No programs assigned yet</p>
+              <p className="text-gray-600 text-sm mt-1">Your coach will assign a program to your account</p>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-400 font-medium">No workouts this week</p>
+              <p className="text-gray-600 text-sm mt-1">Your coach hasn't posted this week's program yet</p>
+            </>
+          )}
         </div>
       )}
 
