@@ -8,6 +8,7 @@ import CoachDashboard from './pages/CoachDashboard'
 import Community from './pages/Community'
 import DirectMessages from './pages/DirectMessages'
 import Profile from './pages/Profile'
+import Programs from './pages/Programs'
 
 function ProtectedRoutes() {
   return (
@@ -15,6 +16,7 @@ function ProtectedRoutes() {
       <Routes>
         <Route path="/dashboard" element={<MemberDashboard />} />
         <Route path="/coach" element={<CoachDashboard />} />
+        <Route path="/programs" element={<Programs />} />
         <Route path="/community" element={<Community />} />
         <Route path="/messages" element={<DirectMessages />} />
         <Route path="/profile" element={<Profile />} />

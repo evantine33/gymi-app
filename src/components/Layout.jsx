@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { Dumbbell, LayoutDashboard, Users, MessageCircle, Mail, UserCircle, ClipboardList } from 'lucide-react'
+import { Dumbbell, LayoutDashboard, Users, MessageCircle, Mail, UserCircle, ClipboardList, Layers } from 'lucide-react'
 import { useEffect } from 'react'
 
 export default function Layout({ children }) {
@@ -26,6 +26,7 @@ export default function Layout({ children }) {
 
   const coachNav = [
     { to: '/coach', icon: ClipboardList, label: 'Dashboard' },
+    { to: '/programs', icon: Layers, label: 'Programs' },
     { to: '/community', icon: Users, label: 'Community' },
     { to: '/messages', icon: Mail, label: 'Messages', badge: unreadDMs },
     { to: '/profile', icon: UserCircle, label: 'Profile' },

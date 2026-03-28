@@ -299,16 +299,21 @@ export default function MemberDashboard() {
 
   const { start, end } = getWeekRange()
 
-  const thisWeekWorkouts = state.workouts
+  // Show workouts assigned to this member OR assigned to everyone (null)
+  const myWorkouts = state.workouts.filter(
+    w => w.assignedTo === null || w.assignedTo === undefined || w.assignedTo === currentUser.id
+  )
+
+  const thisWeekWorkouts = myWorkouts
     .filter(w => w.date >= start && w.date <= end)
     .sort((a, b) => a.date.localeCompare(b.date))
 
-  const upcomingWorkouts = state.workouts
+  const upcomingWorkouts = myWorkouts
     .filter(w => w.date > end)
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 5)
 
-  const pastWorkouts = state.workouts
+  const pastWorkouts = myWorkouts
     .filter(w => w.date < start)
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5)

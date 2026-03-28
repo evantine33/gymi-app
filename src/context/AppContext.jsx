@@ -221,7 +221,7 @@ const loadState = () => {
 
 const getInitialState = () => {
   const saved = loadState()
-  if (saved) return saved
+  if (saved) return { programs: [], ...saved }
   return {
     currentUserId: null,
     users: SEED_USERS,
@@ -229,6 +229,7 @@ const getInitialState = () => {
     workoutLogs: SEED_LOGS,
     communityMessages: SEED_COMMUNITY,
     directMessages: [],
+    programs: [],
   }
 }
 
@@ -271,6 +272,116 @@ function reducer(state, action) {
 
     case 'DELETE_WORKOUT':
       return { ...state, workouts: state.workouts.filter(w => w.id !== action.workoutId) }
+
+    case 'DUPLICATE_WORKOUT': {
+      const orig = state.workouts.find(w => w.id === action.workoutId)
+      if (!orig) return state
+      const newDate = new Date(orig.date + 'T12:00:00')
+      newDate.setDate(newDate.getDate() + 7)
+      const duped = {
+        ...orig,
+        id: 'workout-' + Date.now(),
+        date: newDate.toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        exercises: orig.exercises.map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2) })),
+      }
+      return { ...state, workouts: [...state.workouts, duped] }
+    }
+
+    // ── Programs ──────────────────────────────────────────────────────────────
+    case 'ADD_PROGRAM': {
+      const program = {
+        id: 'prog-' + Date.now(),
+        name: action.name,
+        description: action.description || '',
+        totalWeeks: action.totalWeeks || 12,
+        createdBy: state.currentUserId,
+        createdAt: new Date().toISOString(),
+        weeks: {},
+      }
+      return { ...state, programs: [...state.programs, program] }
+    }
+
+    case 'DELETE_PROGRAM':
+      return { ...state, programs: state.programs.filter(p => p.id !== action.programId) }
+
+    case 'UPDATE_PROGRAM':
+      return {
+        ...state,
+        programs: state.programs.map(p =>
+          p.id === action.programId ? { ...p, ...action.data } : p
+        ),
+      }
+
+    case 'ADD_PROGRAM_WORKOUT': {
+      const pw = {
+        id: 'pw-' + Date.now(),
+        day: action.day,
+        title: action.title,
+        exercises: action.exercises,
+      }
+      return {
+        ...state,
+        programs: state.programs.map(p => {
+          if (p.id !== action.programId) return p
+          const key = String(action.week)
+          return { ...p, weeks: { ...p.weeks, [key]: [...(p.weeks[key] || []), pw] } }
+        }),
+      }
+    }
+
+    case 'DELETE_PROGRAM_WORKOUT':
+      return {
+        ...state,
+        programs: state.programs.map(p => {
+          if (p.id !== action.programId) return p
+          const key = String(action.week)
+          return { ...p, weeks: { ...p.weeks, [key]: (p.weeks[key] || []).filter(pw => pw.id !== action.pwId) } }
+        }),
+      }
+
+    case 'COPY_PROGRAM_WEEK': {
+      // Copy all workouts from one week to another
+      const prog = state.programs.find(p => p.id === action.programId)
+      if (!prog) return state
+      const srcWorkouts = prog.weeks[String(action.fromWeek)] || []
+      const copied = srcWorkouts.map(pw => ({ ...pw, id: 'pw-' + Math.random().toString(36).slice(2) }))
+      const destKey = String(action.toWeek)
+      return {
+        ...state,
+        programs: state.programs.map(p =>
+          p.id === action.programId
+            ? { ...p, weeks: { ...p.weeks, [destKey]: [...(p.weeks[destKey] || []), ...copied] } }
+            : p
+        ),
+      }
+    }
+
+    case 'DEPLOY_PROGRAM': {
+      const prog = state.programs.find(p => p.id === action.programId)
+      if (!prog) return state
+      const DAY_OFFSETS = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 }
+      const start = new Date(action.startDate + 'T12:00:00')
+      const newWorkouts = []
+      for (let week = 1; week <= prog.totalWeeks; week++) {
+        for (const pw of prog.weeks[String(week)] || []) {
+          const d = new Date(start)
+          d.setDate(start.getDate() + (week - 1) * 7 + (DAY_OFFSETS[pw.day] ?? 0))
+          newWorkouts.push({
+            id: 'workout-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+            title: pw.title,
+            date: d.toISOString().split('T')[0],
+            createdBy: state.currentUserId,
+            createdAt: new Date().toISOString(),
+            exercises: pw.exercises.map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2) })),
+            fromProgram: prog.id,
+            weekNumber: week,
+            assignedTo: action.assignTo || null,
+          })
+        }
+      }
+      return { ...state, workouts: [...state.workouts, ...newWorkouts] }
+    }
 
     case 'LOG_EXERCISE': {
       const existing = state.workoutLogs.find(

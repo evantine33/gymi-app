@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import {
   Plus, Trash2, ExternalLink, ChevronDown, ChevronUp,
-  ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays
+  ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays, Copy
 } from 'lucide-react'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -239,7 +239,7 @@ function Calendar({ workouts, selectedDate, onSelectDate }) {
 }
 
 // ─── Day Detail Panel ─────────────────────────────────────────────────────────
-function DayDetail({ date, workouts, members, logs, onDelete, onAddWorkout }) {
+function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAddWorkout }) {
   const [expandedId, setExpandedId] = useState(null)
   const [tab, setTab] = useState({})
 
@@ -278,6 +278,13 @@ function DayDetail({ date, workouts, members, logs, onDelete, onAddWorkout }) {
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-white">{workout.title}</h4>
                 <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => onDuplicate(workout.id)}
+                    title="Duplicate to next week"
+                    className="p-1.5 text-gray-600 hover:text-blue-400 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => onDelete(workout.id)}
                     className="p-1.5 text-gray-600 hover:text-red-400 transition-colors"
@@ -412,6 +419,7 @@ export default function CoachDashboard() {
           members={state.users}
           logs={state.workoutLogs}
           onDelete={(id) => dispatch({ type: 'DELETE_WORKOUT', workoutId: id })}
+          onDuplicate={(id) => dispatch({ type: 'DUPLICATE_WORKOUT', workoutId: id })}
           onAddWorkout={() => setShowAdd(true)}
         />
       )}
