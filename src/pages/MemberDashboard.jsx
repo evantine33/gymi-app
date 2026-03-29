@@ -3,6 +3,35 @@ import { useApp } from '../context/AppContext'
 import { ExternalLink, CheckCircle2, Circle, ChevronDown, ChevronUp, X, Flame, Trophy, Plus, Minus } from 'lucide-react'
 import { groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
 
+function WarmupDisplay({ warmup }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Flame className="w-3.5 h-3.5 text-orange-400" />
+          <span className="text-sm font-semibold text-orange-300">Warm Up</span>
+          <span className="text-xs text-orange-400/70">{warmup.length} items</span>
+        </div>
+        {open ? <ChevronUp className="w-3.5 h-3.5 text-gray-500" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-500" />}
+      </button>
+      {open && (
+        <ul className="px-4 pb-3 space-y-1.5 border-t border-orange-500/10">
+          {warmup.map((item, i) => (
+            <li key={item.id ?? i} className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-gray-200">{item.name}</span>
+              {item.detail && <span className="text-xs text-gray-500 flex-shrink-0">{item.detail}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 const TODAY = new Date().toISOString().split('T')[0]
@@ -305,6 +334,10 @@ function DayWorkoutCard({ workout, myLogs }) {
 
       {open && (
         <div className="mt-4 space-y-3">
+          {/* Warm-up section */}
+          {workout.warmup?.length > 0 && (
+            <WarmupDisplay warmup={workout.warmup} />
+          )}
           {groupExercises(workout.exercises).map((item, gi) => {
             if (item.kind === 'single') {
               return (

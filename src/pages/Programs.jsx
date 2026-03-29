@@ -5,6 +5,7 @@ import {
   Layers, Rocket, BookOpen, Users, User, Check, ExternalLink
 } from 'lucide-react'
 import ExerciseBuilder, { newEx, groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
+import WarmupSection from '../components/WarmupSection'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -69,6 +70,7 @@ function NewProgramModal({ onClose }) {
 function AddProgramWorkoutModal({ programId, week, day, onClose }) {
   const { dispatch } = useApp()
   const [title, setTitle] = useState('')
+  const [warmup, setWarmup] = useState([])
   const [exercises, setExercises] = useState([newEx()])
 
   const handleSubmit = (e) => {
@@ -77,7 +79,8 @@ function AddProgramWorkoutModal({ programId, week, day, onClose }) {
       .filter(ex => ex.name.trim())
       .map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2), sets: Number(ex.sets) || 1 }))
     if (!valid.length) return
-    dispatch({ type: 'ADD_PROGRAM_WORKOUT', programId, week, day, title, exercises: valid })
+    const validWarmup = warmup.filter(w => w.name.trim())
+    dispatch({ type: 'ADD_PROGRAM_WORKOUT', programId, week, day, title, warmup: validWarmup, exercises: valid })
     onClose()
   }
 
@@ -97,6 +100,7 @@ function AddProgramWorkoutModal({ programId, week, day, onClose }) {
             <input className="input" placeholder="e.g. Lower Body Strength" value={title}
               onChange={e => setTitle(e.target.value)} required />
           </div>
+          <WarmupSection warmup={warmup} setWarmup={setWarmup} />
           <div>
             <h3 className="text-sm font-semibold text-gray-300 mb-2">Exercises</h3>
             <ExerciseBuilder exercises={exercises} setExercises={setExercises} />

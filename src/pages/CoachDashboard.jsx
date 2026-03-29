@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays, Copy
 } from 'lucide-react'
 import ExerciseBuilder, { newEx, groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
+import WarmupSection from '../components/WarmupSection'
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -27,6 +28,7 @@ function formatShortDate(dateStr) {
 function AddWorkoutModal({ date, onClose }) {
   const { dispatch } = useApp()
   const [title, setTitle] = useState('')
+  const [warmup, setWarmup] = useState([])
   const [exercises, setExercises] = useState([newEx()])
 
   const handleSubmit = (e) => {
@@ -35,7 +37,8 @@ function AddWorkoutModal({ date, onClose }) {
       .filter(ex => ex.name.trim())
       .map(ex => ({ ...ex, id: 'ex-' + Math.random().toString(36).slice(2), sets: Number(ex.sets) || 1 }))
     if (!validExercises.length) return
-    dispatch({ type: 'ADD_WORKOUT', workout: { title, date, exercises: validExercises } })
+    const validWarmup = warmup.filter(w => w.name.trim())
+    dispatch({ type: 'ADD_WORKOUT', workout: { title, date, warmup: validWarmup, exercises: validExercises } })
     onClose()
   }
 
@@ -56,6 +59,8 @@ function AddWorkoutModal({ date, onClose }) {
             <input className="input" placeholder="e.g. Strength Block, Conditioning Day..."
               value={title} onChange={e => setTitle(e.target.value)} required />
           </div>
+
+          <WarmupSection warmup={warmup} setWarmup={setWarmup} />
 
           <div>
             <h3 className="font-semibold text-gray-300 mb-3">Exercises</h3>
