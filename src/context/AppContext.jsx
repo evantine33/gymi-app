@@ -283,6 +283,16 @@ function reducer(state, action) {
       }
     }
 
+    case 'UPDATE_WORKOUT':
+      return {
+        ...state,
+        workouts: state.workouts.map(w =>
+          w.id === action.workoutId
+            ? { ...w, title: action.data.title, exercises: action.data.exercises, warmup: action.data.warmup ?? w.warmup }
+            : w
+        ),
+      }
+
     case 'DELETE_WORKOUT':
       return { ...state, workouts: state.workouts.filter(w => w.id !== action.workoutId) }
 

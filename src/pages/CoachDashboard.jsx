@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import {
   Plus, Trash2, ExternalLink, ChevronDown, ChevronUp,
-  ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays, Copy
+  ChevronLeft, ChevronRight, Users, ClipboardList, X, CalendarDays, Copy, Pencil
 } from 'lucide-react'
 import ExerciseBuilder, { newEx, groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
 import WarmupSection from '../components/WarmupSection'
@@ -70,6 +70,77 @@ function AddWorkoutModal({ date, onClose }) {
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="btn-ghost flex-1">Cancel</button>
             <button type="submit" className="btn-primary flex-1">Post Workout</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ─── Edit Workout Modal ───────────────────────────────────────────────────────
+function EditWorkoutModal({ workout, onClose }) {
+  const { dispatch } = useApp()
+  const [title, setTitle] = useState(workout.title || '')
+  const [warmup, setWarmup] = useState(workout.warmup?.length ? workout.warmup : [])
+  const [exercises, setExercises] = useState(
+    workout.exercises?.length
+      ? workout.exercises.map(ex => ({
+          ...newEx(),
+          ...ex,
+          setsData: ex.setsData?.length
+            ? ex.setsData
+            : Array.from({ length: Number(ex.sets) || 3 }, () => ({
+                id: Math.random(),
+                reps: ex.reps || '',
+                weight: ex.targetWeight || '',
+              })),
+        }))
+      : [newEx()]
+  )
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const validExercises = exercises
+      .filter(ex => ex.name.trim())
+      .map(ex => ({ ...ex, id: ex.id || 'ex-' + Math.random().toString(36).slice(2) }))
+    if (!validExercises.length) return
+    const validWarmup = warmup.filter(w => w.name.trim())
+    dispatch({
+      type: 'UPDATE_WORKOUT',
+      workoutId: workout.id,
+      data: { title, warmup: validWarmup, exercises: validExercises },
+    })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl my-4">
+        <div className="flex items-center justify-between p-5 border-b border-gray-800">
+          <div>
+            <h2 className="text-lg font-bold">Edit Workout</h2>
+            <p className="text-sm text-orange-400 mt-0.5">{formatDateLabel(workout.date)}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Workout Title</label>
+            <input className="input" placeholder="e.g. Strength Block, Conditioning Day..."
+              value={title} onChange={e => setTitle(e.target.value)} required />
+          </div>
+
+          <WarmupSection warmup={warmup} setWarmup={setWarmup} />
+
+          <div>
+            <h3 className="font-semibold text-gray-300 mb-3">Exercises</h3>
+            <ExerciseBuilder exercises={exercises} setExercises={setExercises} />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="btn-ghost flex-1">Cancel</button>
+            <button type="submit" className="btn-primary flex-1">Save Changes</button>
           </div>
         </form>
       </div>
@@ -194,7 +265,7 @@ function Calendar({ workouts, selectedDate, onSelectDate }) {
 }
 
 // ─── Day Detail Panel ─────────────────────────────────────────────────────────
-function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAddWorkout }) {
+function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAddWorkout, onEdit }) {
   const [expandedId, setExpandedId] = useState(null)
   const [tab, setTab] = useState({})
 
@@ -233,6 +304,13 @@ function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAdd
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-white">{workout.title}</h4>
                 <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => onEdit(workout)}
+                    title="Edit workout"
+                    className="p-1.5 text-gray-600 hover:text-orange-400 transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => onDuplicate(workout.id)}
                     title="Duplicate to next week"
@@ -386,6 +464,7 @@ export default function CoachDashboard() {
   const { state, dispatch, currentUser, currentGym } = useApp()
   const [selectedDate, setSelectedDate] = useState(TODAY)
   const [showAdd, setShowAdd] = useState(false)
+  const [editingWorkout, setEditingWorkout] = useState(null)
 
   // Scope all data to this coach's gym
   const gymId = currentUser?.gymId
@@ -421,12 +500,18 @@ export default function CoachDashboard() {
           onDelete={(id) => dispatch({ type: 'DELETE_WORKOUT', workoutId: id })}
           onDuplicate={(id) => dispatch({ type: 'DUPLICATE_WORKOUT', workoutId: id })}
           onAddWorkout={() => setShowAdd(true)}
+          onEdit={(workout) => setEditingWorkout(workout)}
         />
       )}
 
       {/* Add workout modal */}
       {showAdd && selectedDate && (
         <AddWorkoutModal date={selectedDate} onClose={() => setShowAdd(false)} />
+      )}
+
+      {/* Edit workout modal */}
+      {editingWorkout && (
+        <EditWorkoutModal workout={editingWorkout} onClose={() => setEditingWorkout(null)} />
       )}
     </div>
   )
