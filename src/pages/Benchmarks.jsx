@@ -6,10 +6,11 @@ import {
 } from 'lucide-react'
 
 const BENCHMARK_TYPES = [
-  { value: 'weight', label: 'Weight', units: ['lbs', 'kg'], higherIsBetter: true, placeholder: '225' },
-  { value: 'reps',   label: 'Reps',   units: ['reps'],      higherIsBetter: true, placeholder: '20'  },
-  { value: 'time',   label: 'Time',   units: ['sec'],        higherIsBetter: false, placeholder: '300' },
+  { value: 'weight',   label: 'Weight',   units: ['lbs', 'kg'], higherIsBetter: true,  placeholder: '225' },
+  { value: 'reps',     label: 'Reps',     units: ['reps'],      higherIsBetter: true,  placeholder: '20'  },
+  { value: 'time',     label: 'Time',     units: ['sec'],       higherIsBetter: false, placeholder: '300' },
   { value: 'distance', label: 'Distance', units: ['ft', 'm', 'in'], higherIsBetter: true, placeholder: '8' },
+  { value: 'calories', label: 'Calories', units: ['cal'],       higherIsBetter: true,  placeholder: '100' },
 ]
 
 const TYPE_COLORS = {
@@ -17,6 +18,7 @@ const TYPE_COLORS = {
   reps:     'text-green-400 bg-green-900/40 border-green-700/40',
   time:     'text-purple-400 bg-purple-900/40 border-purple-700/40',
   distance: 'text-yellow-400 bg-yellow-900/40 border-yellow-700/40',
+  calories: 'text-red-400 bg-red-900/40 border-red-700/40',
 }
 
 function formatValue(value, type, unit) {
