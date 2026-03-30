@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { ExternalLink, CheckCircle2, Circle, ChevronDown, ChevronUp, Flame, Trophy, Play } from 'lucide-react'
+import { ExternalLink, CheckCircle2, Circle, ChevronDown, ChevronUp, Flame, Trophy, Play, LayoutList, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { groupExercises, GROUP_STYLES } from '../components/ExerciseBuilder'
 import WorkoutSession from '../components/WorkoutSession'
 
@@ -228,8 +228,128 @@ function DayWorkoutCard({ workout, myLogs }) {
   )
 }
 
+// ─── Member Calendar View ─────────────────────────────────────────────────────
+function MemberCalendar({ workouts, myLogs }) {
+  const [viewDate, setViewDate] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(TODAY)
+
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const leadingBlanks = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1
+  const cells = [...Array(leadingBlanks).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)]
+
+  const toDateStr = (day) =>
+    `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+  const workoutsByDate = workouts.reduce((acc, w) => {
+    if (!acc[w.date]) acc[w.date] = []
+    acc[w.date].push(w)
+    return acc
+  }, {})
+
+  const selectedWorkouts = workoutsByDate[selectedDate] || []
+
+  return (
+    <div>
+      {/* Calendar grid */}
+      <div className="card mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => setViewDate(new Date(year, month - 1, 1))}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <h2 className="font-bold text-white">
+            {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </h2>
+          <button onClick={() => setViewDate(new Date(year, month + 1, 1))}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 mb-1">
+          {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+            <div key={d} className="text-center text-xs text-gray-600 font-semibold py-1 uppercase tracking-wide">{d}</div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 gap-1">
+          {cells.map((day, i) => {
+            if (!day) return <div key={i} />
+            const dateStr = toDateStr(day)
+            const dayWorkouts = workoutsByDate[dateStr] || []
+            const isToday = dateStr === TODAY
+            const isSelected = dateStr === selectedDate
+            const allDone = dayWorkouts.length > 0 && dayWorkouts.every(w =>
+              w.exercises.every(ex => myLogs.some(l => l.exerciseId === ex.id))
+            )
+            const someLogged = !allDone && dayWorkouts.some(w =>
+              w.exercises.some(ex => myLogs.some(l => l.exerciseId === ex.id))
+            )
+
+            return (
+              <button key={i}
+                onClick={() => setSelectedDate(isSelected ? null : dateStr)}
+                className={`relative flex flex-col items-center justify-start pt-1.5 pb-1 rounded-xl min-h-[52px] transition-all border ${
+                  isSelected
+                    ? 'bg-orange-500 border-orange-400 text-white'
+                    : isToday
+                    ? 'bg-orange-500/15 border-orange-500/40 text-orange-300'
+                    : dateStr < TODAY
+                    ? 'border-transparent hover:bg-gray-800 text-gray-600 hover:text-gray-400'
+                    : 'border-transparent hover:bg-gray-800 text-gray-300'
+                }`}
+              >
+                <span className={`text-sm font-semibold leading-none ${isToday && !isSelected ? 'text-orange-400' : ''}`}>{day}</span>
+                {dayWorkouts.length > 0 && (
+                  <div className="flex gap-0.5 mt-1.5 flex-wrap justify-center px-1">
+                    {dayWorkouts.slice(0, 3).map((_, wi) => (
+                      <div key={wi} className={`w-1.5 h-1.5 rounded-full ${
+                        isSelected ? 'bg-white' : allDone ? 'bg-green-400' : someLogged ? 'bg-orange-300' : 'bg-orange-400'
+                      }`} />
+                    ))}
+                  </div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-800">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500"><div className="w-2 h-2 rounded-full bg-orange-400" /> Scheduled</div>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500"><div className="w-2 h-2 rounded-full bg-green-400" /> Done</div>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500"><div className="w-4 h-4 rounded-md bg-orange-500/15 border border-orange-500/40" /> Today</div>
+        </div>
+      </div>
+
+      {/* Selected day workouts */}
+      {selectedDate && (
+        <div>
+          <p className="text-sm font-semibold text-gray-400 mb-3">
+            {formatDayLabel(selectedDate)}
+          </p>
+          {selectedWorkouts.length === 0 ? (
+            <div className="card text-center py-8 border-dashed">
+              <p className="text-gray-600 text-sm">No workout scheduled</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {selectedWorkouts.map(workout => (
+                <DayWorkoutCard key={workout.id} workout={workout} myLogs={myLogs} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MemberDashboard() {
   const { state, currentUser } = useApp()
+  const [view, setView] = useState('list') // 'list' | 'calendar'
   const myLogs = state.workoutLogs.filter(l => l.userId === currentUser.id)
 
   const { start, end } = getWeekRange()
@@ -265,21 +385,49 @@ export default function MemberDashboard() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-0.5">
-          <h1 className="text-2xl font-bold">Hey, {currentUser.name.split(' ')[0]} 👊</h1>
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-            isNonMember
-              ? 'bg-gray-800 text-gray-400 border border-gray-700'
-              : 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
-          }`}>
-            {isNonMember ? 'Non-Member' : 'Gym Member'}
-          </span>
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <div className="flex items-center gap-2 mb-0.5">
+            <h1 className="text-2xl font-bold">Hey, {currentUser.name.split(' ')[0]} 👊</h1>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+              isNonMember
+                ? 'bg-gray-800 text-gray-400 border border-gray-700'
+                : 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
+            }`}>
+              {isNonMember ? 'Non-Member' : 'Gym Member'}
+            </span>
+          </div>
+          <p className="text-gray-400 text-sm">
+            {isNonMember ? 'Your assigned programs will appear here.' : "Let's get to work."}
+          </p>
         </div>
-        <p className="text-gray-400 text-sm">
-          {isNonMember ? 'Your assigned programs will appear here.' : "Let's get to work."}
-        </p>
+
+        {/* View toggle */}
+        <div className="flex items-center bg-gray-800 border border-gray-700 rounded-xl p-1 gap-1 flex-shrink-0">
+          <button
+            onClick={() => setView('list')}
+            className={`p-2 rounded-lg transition-all ${view === 'list' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
+            title="List view"
+          >
+            <LayoutList className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setView('calendar')}
+            className={`p-2 rounded-lg transition-all ${view === 'calendar' ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white'}`}
+            title="Calendar view"
+          >
+            <CalendarDays className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+
+      {/* ── Calendar view ── */}
+      {view === 'calendar' && (
+        <MemberCalendar workouts={myWorkouts} myLogs={myLogs} />
+      )}
+
+      {/* ── List view ── */}
+      {view === 'list' && <>
 
       {/* Weekly progress */}
       {thisWeekWorkouts.length > 0 && (
@@ -388,6 +536,8 @@ export default function MemberDashboard() {
           </div>
         </div>
       )}
+
+      </>} {/* end list view */}
     </div>
   )
 }
