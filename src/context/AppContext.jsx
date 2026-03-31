@@ -180,7 +180,7 @@ const loadState = () => {
 
 const getInitialState = () => {
   const saved = loadState()
-  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], ...saved }
+  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], habitDefs: [], habitLogs: [], journalEntries: [], ...saved }
   return {
     currentUserId: null,
     gyms: [SEED_GYM],
@@ -193,6 +193,9 @@ const getInitialState = () => {
     notifications: [],
     benchmarkDefs: [],
     benchmarkEntries: [],
+    habitDefs: [],
+    habitLogs: [],
+    journalEntries: [],
   }
 }
 
@@ -570,6 +573,80 @@ function reducer(state, action) {
       return {
         ...state,
         benchmarkEntries: (state.benchmarkEntries || []).filter(e => e.id !== action.entryId),
+      }
+
+    // ── Habits ─────────────────────────────────────────────────────────────
+    case 'ADD_HABIT_DEF': {
+      const def = {
+        id: 'hdef-' + Date.now(),
+        userId: state.currentUserId,
+        name: action.name,
+        description: action.description || '',
+        emoji: action.emoji || '✅',
+        createdAt: new Date().toISOString(),
+      }
+      return { ...state, habitDefs: [...(state.habitDefs || []), def] }
+    }
+
+    case 'DELETE_HABIT_DEF':
+      return {
+        ...state,
+        habitDefs: (state.habitDefs || []).filter(d => d.id !== action.defId),
+        habitLogs: (state.habitLogs || []).filter(l => l.habitId !== action.defId),
+      }
+
+    case 'TOGGLE_HABIT_LOG': {
+      const existing = (state.habitLogs || []).find(
+        l => l.habitId === action.habitId && l.userId === state.currentUserId && l.date === action.date
+      )
+      if (existing) {
+        // Toggle completed
+        return {
+          ...state,
+          habitLogs: state.habitLogs.map(l =>
+            l.id === existing.id ? { ...l, completed: !l.completed } : l
+          ),
+        }
+      }
+      const entry = {
+        id: 'hlog-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+        habitId: action.habitId,
+        userId: state.currentUserId,
+        date: action.date,
+        completed: true,
+        createdAt: new Date().toISOString(),
+      }
+      return { ...state, habitLogs: [...(state.habitLogs || []), entry] }
+    }
+
+    // ── Journal ────────────────────────────────────────────────────────────
+    case 'ADD_JOURNAL_ENTRY': {
+      const entry = {
+        id: 'jentry-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+        userId: state.currentUserId,
+        date: action.entry.date,
+        title: action.entry.title || '',
+        content: action.entry.content || '',
+        mood: action.entry.mood || null,
+        createdAt: new Date().toISOString(),
+      }
+      return { ...state, journalEntries: [...(state.journalEntries || []), entry] }
+    }
+
+    case 'UPDATE_JOURNAL_ENTRY':
+      return {
+        ...state,
+        journalEntries: (state.journalEntries || []).map(e =>
+          e.id === action.entryId
+            ? { ...e, title: action.entry.title, content: action.entry.content, mood: action.entry.mood }
+            : e
+        ),
+      }
+
+    case 'DELETE_JOURNAL_ENTRY':
+      return {
+        ...state,
+        journalEntries: (state.journalEntries || []).filter(e => e.id !== action.entryId),
       }
 
     default:

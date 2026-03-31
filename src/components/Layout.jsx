@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext'
 import {
   Dumbbell, LayoutDashboard, Users, Mail, UserCircle, ClipboardList,
   Layers, Copy, Check, UsersRound, TrendingUp, BookOpen, Bell, X,
-  Target, Menu, LogOut,
+  Target, Menu, LogOut, NotebookPen,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -60,6 +60,7 @@ export default function Layout({ children }) {
     { to: '/stats', icon: TrendingUp, label: 'Volume' },
     { to: '/community', icon: Users, label: 'Community' },
     { to: '/messages', icon: Mail, label: 'Messages', badge: unreadDMs },
+    { to: '/journal', icon: NotebookPen, label: 'Journal' },
     { to: '/profile', icon: UserCircle, label: 'Profile' },
   ]
 
@@ -92,6 +93,7 @@ export default function Layout({ children }) {
   const memberMore = [
     { to: '/benchmarks', icon: Target, label: 'Benchmarks' },
     { to: '/stats', icon: TrendingUp, label: 'Volume' },
+    { to: '/journal', icon: NotebookPen, label: 'Journal' },
     { to: '/community', icon: Users, label: 'Community' },
     { to: '/profile', icon: UserCircle, label: 'Profile' },
   ]
