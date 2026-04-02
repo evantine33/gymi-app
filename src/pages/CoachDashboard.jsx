@@ -345,9 +345,16 @@ function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAdd
                                     <span className="text-xs bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded-full font-medium">#{gi + 1}</span>
                                     <span className="font-semibold text-sm text-white">{ex.name}</span>
                                   </div>
-                                  <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-1">
-                                    <span><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
-                                    {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
+                                  <div className="flex flex-wrap gap-1 mt-1 mb-1">
+                                    {ex.setsData?.length
+                                      ? ex.setsData.map((s, si) => (
+                                          <span key={si} className="inline-flex items-center gap-1 text-xs bg-gray-700/60 border border-gray-600/50 rounded px-1.5 py-0.5">
+                                            <span className="text-orange-400 font-semibold">S{si + 1}</span>
+                                            <span className="text-gray-200">{s.reps || '—'}{s.weight ? ` @ ${s.weight}` : ''}</span>
+                                          </span>
+                                        ))
+                                      : <span className="text-xs text-gray-400"><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
+                                    }
                                   </div>
                                   {ex.notes && <p className="text-xs text-gray-500 italic">"{ex.notes}"</p>}
                                 </div>
@@ -375,9 +382,16 @@ function DayDetail({ date, workouts, members, logs, onDelete, onDuplicate, onAdd
                                     </div>
                                     <div>
                                       <p className="font-semibold text-sm text-white">{ex.name}</p>
-                                      <div className="flex flex-wrap gap-2 text-xs text-gray-400 mt-0.5">
-                                        <span><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
-                                        {ex.targetWeight && <span>@ <span className="text-white font-medium">{ex.targetWeight}</span></span>}
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {ex.setsData?.length
+                                          ? ex.setsData.map((s, si) => (
+                                              <span key={si} className="inline-flex items-center gap-1 text-xs bg-gray-700/60 border border-gray-600/50 rounded px-1.5 py-0.5">
+                                                <span className="text-orange-400 font-semibold">S{si + 1}</span>
+                                                <span className="text-gray-200">{s.reps || '—'}{s.weight ? ` @ ${s.weight}` : ''}</span>
+                                              </span>
+                                            ))
+                                          : <span className="text-xs text-gray-400"><span className="text-white font-medium">{ex.sets}</span> × <span className="text-white font-medium">{ex.reps}</span></span>
+                                        }
                                       </div>
                                       {ex.notes && <p className="text-xs text-gray-500 italic mt-0.5">"{ex.notes}"</p>}
                                     </div>
