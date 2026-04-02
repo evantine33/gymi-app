@@ -293,7 +293,7 @@ const loadState = () => {
 
 const getInitialState = () => {
   const saved = loadState()
-  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], habitDefs: [], habitLogs: [], journalEntries: [], programListings: SEED_LISTINGS, purchases: [], ...saved }
+  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], habitDefs: [], habitLogs: [], journalEntries: [], programListings: [], purchases: [], ...saved }
   return {
     currentUserId: null,
     gyms: [SEED_GYM],
@@ -309,7 +309,7 @@ const getInitialState = () => {
     habitDefs: [],
     habitLogs: [],
     journalEntries: [],
-    programListings: SEED_LISTINGS,
+    programListings: [],
     purchases: [],
   }
 }

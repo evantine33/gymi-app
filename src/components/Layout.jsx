@@ -22,9 +22,26 @@ export default function Layout({ children }) {
 
   const copyCode = () => {
     if (!currentGym?.joinCode) return
-    navigator.clipboard.writeText(currentGym.joinCode)
+    const code = currentGym.joinCode
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).catch(() => fallbackCopy(code))
+    } else {
+      fallbackCopy(code)
+    }
     setCodeCopied(true)
     setTimeout(() => setCodeCopied(false), 2000)
+  }
+
+  const fallbackCopy = (text) => {
+    const el = document.createElement('textarea')
+    el.value = text
+    el.style.position = 'fixed'
+    el.style.opacity = '0'
+    document.body.appendChild(el)
+    el.focus()
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
   }
 
   if (!currentUser) return null
