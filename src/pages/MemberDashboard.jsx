@@ -394,7 +394,7 @@ export default function MemberDashboard() {
                 ? 'bg-gray-800 text-gray-400 border border-gray-700'
                 : 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
             }`}>
-              {isNonMember ? 'Non-Member' : 'Gym Member'}
+              {currentUser.role === 'coach' ? 'Coach' : currentUser.role === 'staff' ? 'Staff Coach' : isNonMember ? 'Non-Member' : 'Gym Member'}
             </span>
           </div>
           <p className="text-gray-400 text-sm">
