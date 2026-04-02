@@ -1,31 +1,32 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { Dumbbell, ArrowRight, AlertCircle } from 'lucide-react'
+import { Dumbbell, ArrowRight, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function JoinGym() {
-  const { state, dispatch, currentUser } = useApp()
+  const { joinGym, currentUser } = useApp()
   const navigate = useNavigate()
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleJoin = (e) => {
+  const handleJoin = async (e) => {
     e.preventDefault()
     setError('')
-    const trimmed = code.trim().toUpperCase()
-    const gym = state.gyms.find(g => g.joinCode === trimmed)
-    if (!gym) {
-      setError('That code doesn\'t match any gym. Check with your coach and try again.')
-      return
+    setLoading(true)
+    try {
+      await joinGym(code.trim().toUpperCase())
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    dispatch({ type: 'JOIN_GYM', gymId: gym.id })
-    navigate('/dashboard')
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-sm">
-        {/* Header */}
         <div className="flex flex-col items-center mb-8 text-center">
           <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center mb-4">
             <Dumbbell className="w-8 h-8 text-white" />
@@ -61,8 +62,8 @@ export default function JoinGym() {
               </div>
             )}
 
-            <button type="submit" className="btn-primary w-full py-3 flex items-center justify-center gap-2">
-              Join Gym <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Joining…</> : <>Join Gym <ArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
         </div>

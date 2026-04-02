@@ -1,5 +1,14 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useRef, useState, useCallback } from 'react'
 import { generateJoinCode } from '../utils/gymUtils'
+import {
+  supabase, isSupabaseEnabled,
+  sbSignIn, sbSignUp, sbSignOut, sbGetSession,
+  insertProfile, updateProfile, getProfile, getGymMembers,
+  insertGym, getGymByCode, getGymById,
+  insertWorkout, updateWorkout as sbUpdateWorkout, deleteWorkout as sbDeleteWorkout, getGymWorkouts,
+  upsertWorkoutLog, getGymLogs,
+  subscribeToGymWorkouts, subscribeToGymLogs,
+} from '../lib/supabase'
 
 const AppContext = createContext(null)
 
@@ -328,21 +337,7 @@ function reducer(state, action) {
       return { ...state, users: [...state.users, newUser] }
     }
 
-    case 'CREATE_GYM': {
-      const currentUser = state.users.find(u => u.id === state.currentUserId)
-      if (!currentUser) return state
-      const newGym = {
-        id: 'gym-' + Date.now(),
-        name: action.name,
-        joinCode: generateJoinCode(),
-        createdBy: state.currentUserId,
-        createdAt: new Date().toISOString(),
-      }
-      const updatedUsers = state.users.map(u =>
-        u.id === state.currentUserId ? { ...u, gymId: newGym.id } : u
-      )
-      return { ...state, gyms: [...state.gyms, newGym], users: updatedUsers }
-    }
+    // CREATE_GYM handled below in HYDRATE section with pre-generated IDs
 
     case 'JOIN_GYM': {
       const updatedUsers = state.users.map(u =>
@@ -798,26 +793,302 @@ function reducer(state, action) {
         journalEntries: (state.journalEntries || []).filter(e => e.id !== action.entryId),
       }
 
+    // ── Supabase Hydration ────────────────────────────────────────────────
+    case 'HYDRATE': {
+      const p = action.profile
+      const user = {
+        id: p.id,
+        name: p.name,
+        email: p.email || '',
+        phone: p.phone || '',
+        role: p.role,
+        gymId: p.gym_id || null,
+        joinDate: p.join_date,
+        initials: p.initials || p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+      }
+
+      // Merge gym
+      let gyms = [...state.gyms]
+      if (action.gym) {
+        const gym = { id: action.gym.id, name: action.gym.name, joinCode: action.gym.join_code, createdBy: action.gym.created_by, createdAt: action.gym.created_at }
+        const idx = gyms.findIndex(g => g.id === gym.id)
+        gyms = idx >= 0 ? gyms.map((g, i) => i === idx ? gym : g) : [...gyms, gym]
+      }
+
+      // Merge all gym members as users
+      const remoteMembers = (action.members || []).map(m => ({
+        id: m.id, name: m.name, email: m.email || '', phone: m.phone || '',
+        role: m.role, gymId: m.gym_id, joinDate: m.join_date,
+        initials: m.initials || m.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+      }))
+      let users = [...state.users]
+      for (const m of [user, ...remoteMembers]) {
+        const idx = users.findIndex(u => u.id === m.id)
+        if (idx >= 0) users = users.map((u, i) => i === idx ? { ...u, ...m } : u)
+        else users = [...users, m]
+      }
+
+      // Replace gym workouts
+      const gymId = p.gym_id
+      const remoteWorkouts = (action.workouts || []).map(w => ({
+        id: w.id, title: w.title, date: w.date, gymId: w.gym_id,
+        createdBy: w.created_by, exercises: w.exercises || [], warmup: w.warmup || [], createdAt: w.created_at,
+      }))
+      const workouts = gymId
+        ? [...state.workouts.filter(w => w.gymId !== gymId), ...remoteWorkouts]
+        : state.workouts
+
+      // Replace gym logs
+      const remoteLogs = (action.logs || []).map(l => ({
+        id: l.id, userId: l.user_id, exerciseId: l.exercise_id, workoutId: l.workout_id,
+        gymId: l.gym_id, exerciseName: l.exercise_name || '', sets: l.sets || [],
+        notes: l.notes || '', date: l.logged_at, loggedAt: l.logged_at,
+      }))
+      const workoutLogs = gymId
+        ? [...state.workoutLogs.filter(l => l.gymId !== gymId), ...remoteLogs]
+        : state.workoutLogs
+
+      return { ...state, users, gyms, workouts, workoutLogs, currentUserId: p.id }
+    }
+
+    case 'HYDRATE_USER': {
+      const u = action.user
+      const idx = state.users.findIndex(x => x.id === u.id)
+      const users = idx >= 0 ? state.users.map((x, i) => i === idx ? { ...x, ...u } : x) : [...state.users, u]
+      return { ...state, users }
+    }
+
+    // Allow reducer to use pre-generated gym id / join code from enhanced dispatch
+    case 'CREATE_GYM': {
+      const currentUser = state.users.find(u => u.id === state.currentUserId)
+      if (!currentUser) return state
+      const newGym = {
+        id: action.gymId || 'gym-' + Date.now(),
+        name: action.name,
+        joinCode: action.joinCode || generateJoinCode(),
+        createdBy: state.currentUserId,
+        createdAt: new Date().toISOString(),
+      }
+      const updatedUsers = state.users.map(u => u.id === state.currentUserId ? { ...u, gymId: newGym.id } : u)
+      return { ...state, gyms: [...state.gyms, newGym], users: updatedUsers }
+    }
+
     default:
       return state
   }
 }
 
+// ─── Hydrate from Supabase ────────────────────────────────────────────────────
+async function hydrateFromSupabase(userId, dispatch) {
+  const { data: profile, error } = await getProfile(userId)
+  if (error || !profile) return
+
+  let gym = null, workouts = [], logs = [], members = []
+  if (profile.gym_id) {
+    const [gymRes, workoutsRes, logsRes, membersRes] = await Promise.all([
+      getGymById(profile.gym_id),
+      getGymWorkouts(profile.gym_id),
+      getGymLogs(profile.gym_id),
+      getGymMembers(profile.gym_id),
+    ])
+    gym = gymRes.data
+    workouts = workoutsRes.data || []
+    logs = logsRes.data || []
+    members = membersRes.data || []
+  }
+  dispatch({ type: 'HYDRATE', profile, gym, workouts, logs, members })
+}
+
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, undefined, getInitialState)
+  const [authReady, setAuthReady] = useState(!isSupabaseEnabled) // if no Supabase, skip wait
+  const [authLoading, setAuthLoading] = useState(false)
+  const stateRef = useRef(state)
+  useEffect(() => { stateRef.current = state }, [state])
 
+  // Persist to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem('gymi_state', JSON.stringify(state))
-    } catch {}
+    try { localStorage.setItem('gymi_state', JSON.stringify(state)) } catch {}
   }, [state])
+
+  // Supabase auth listener — runs once on mount
+  useEffect(() => {
+    if (!isSupabaseEnabled) return
+
+    // Check for existing session (e.g. returning user)
+    sbGetSession().then(async ({ data: { session } }) => {
+      if (session) {
+        await hydrateFromSupabase(session.user.id, dispatch)
+      }
+      setAuthReady(true)
+    })
+
+    // Listen for auth state changes (sign in / sign out from other tabs)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') dispatch({ type: 'LOGOUT' })
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Realtime subscriptions for the current user's gym
+  useEffect(() => {
+    if (!isSupabaseEnabled) return
+    const gymId = stateRef.current.users.find(u => u.id === stateRef.current.currentUserId)?.gymId
+    if (!gymId) return
+
+    const wSub = subscribeToGymWorkouts(gymId, () => {
+      hydrateFromSupabase(stateRef.current.currentUserId, dispatch)
+    })
+    const lSub = subscribeToGymLogs(gymId, () => {
+      hydrateFromSupabase(stateRef.current.currentUserId, dispatch)
+    })
+    return () => { wSub.unsubscribe(); lSub.unsubscribe() }
+  }, [state.currentUserId])
+
+  // ── Enhanced dispatch: local state + Supabase sync ─────────────────────────
+  const enhancedDispatch = useCallback(async (action) => {
+    // Pre-generate IDs so both reducer and Supabase get the same value
+    let a = action
+    if (a.type === 'ADD_WORKOUT' && !a.workout?.id) {
+      a = { ...a, workout: { ...a.workout, id: 'workout-' + Date.now() } }
+    }
+    if (a.type === 'CREATE_GYM' && !a.gymId) {
+      a = { ...a, gymId: 'gym-' + Date.now(), joinCode: generateJoinCode() }
+    }
+
+    dispatch(a) // immediate local update
+
+    if (!isSupabaseEnabled) return
+
+    const s = stateRef.current
+    const me = s.users.find(u => u.id === s.currentUserId)
+
+    try {
+      switch (a.type) {
+        case 'ADD_WORKOUT':
+          await insertWorkout({ ...a.workout, gymId: me?.gymId, createdBy: s.currentUserId })
+          break
+        case 'UPDATE_WORKOUT':
+          await sbUpdateWorkout(a.workoutId, a.data)
+          break
+        case 'DELETE_WORKOUT':
+          await sbDeleteWorkout(a.workoutId)
+          break
+        case 'LOG_EXERCISE': {
+          const logId = 'log-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+          await upsertWorkoutLog({ id: logId, userId: s.currentUserId, gymId: me?.gymId, ...a.log })
+          break
+        }
+        case 'CREATE_GYM':
+          await insertGym({ id: a.gymId, name: a.name, join_code: a.joinCode, created_by: s.currentUserId })
+          await updateProfile(s.currentUserId, { gym_id: a.gymId })
+          break
+        case 'JOIN_GYM':
+          await updateProfile(s.currentUserId, { gym_id: a.gymId })
+          break
+        case 'UPDATE_PROFILE':
+          await updateProfile(a.userId, {
+            name: a.data.name, phone: a.data.phone,
+          })
+          break
+      }
+    } catch (err) {
+      console.error('Supabase sync error:', err)
+    }
+  }, [])
+
+  // ── Auth functions ─────────────────────────────────────────────────────────
+  const login = useCallback(async (email, password) => {
+    if (!isSupabaseEnabled) {
+      const user = stateRef.current.users.find(
+        u => u.email?.toLowerCase() === email.toLowerCase() && u.password === password
+      )
+      if (!user) throw new Error('Invalid email or password')
+      dispatch({ type: 'LOGIN', userId: user.id })
+      return user
+    }
+    setAuthLoading(true)
+    try {
+      const { data, error } = await sbSignIn(email, password)
+      if (error) throw error
+      await hydrateFromSupabase(data.user.id, dispatch)
+      return data.user
+    } finally {
+      setAuthLoading(false)
+    }
+  }, [])
+
+  const register = useCallback(async (userData) => {
+    if (!isSupabaseEnabled) {
+      dispatch({ type: 'REGISTER', user: userData })
+      return null
+    }
+    setAuthLoading(true)
+    try {
+      const { data, error } = await sbSignUp(userData.email, userData.password)
+      if (error) throw error
+      const initials = userData.name.trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+      const { error: pErr } = await insertProfile({
+        id: data.user.id,
+        name: userData.name,
+        phone: userData.phone || '',
+        role: userData.role || 'member',
+        initials,
+      })
+      if (pErr) throw pErr
+      dispatch({ type: 'HYDRATE_USER', user: {
+        id: data.user.id, name: userData.name, email: userData.email,
+        phone: userData.phone || '', role: userData.role || 'member',
+        initials, gymId: null, joinDate: new Date().toISOString().split('T')[0],
+      }})
+      dispatch({ type: 'LOGIN', userId: data.user.id })
+      return data.user
+    } finally {
+      setAuthLoading(false)
+    }
+  }, [])
+
+  const logout = useCallback(async () => {
+    if (isSupabaseEnabled) await sbSignOut()
+    dispatch({ type: 'LOGOUT' })
+  }, [])
+
+  // ── Join gym (Supabase-aware) ───────────────────────────────────────────────
+  const joinGym = useCallback(async (code) => {
+    if (!isSupabaseEnabled) {
+      const gym = stateRef.current.gyms.find(g => g.joinCode === code.trim().toUpperCase())
+      if (!gym) throw new Error("That code doesn't match any gym.")
+      dispatch({ type: 'JOIN_GYM', gymId: gym.id })
+      return gym
+    }
+    const { data: gym, error } = await getGymByCode(code.trim())
+    if (error || !gym) throw new Error("That code doesn't match any gym. Check with your coach and try again.")
+    // Add gym to local state and join
+    const localGym = { id: gym.id, name: gym.name, joinCode: gym.join_code, createdBy: gym.created_by, createdAt: gym.created_at }
+    dispatch({ type: 'HYDRATE', profile: { ...stateRef.current.users.find(u => u.id === stateRef.current.currentUserId), gym_id: gym.id }, gym: localGym, workouts: [], logs: [], members: [] })
+    await updateProfile(stateRef.current.currentUserId, { gym_id: gym.id })
+    // Now hydrate full gym data
+    await hydrateFromSupabase(stateRef.current.currentUserId, dispatch)
+    return gym
+  }, [])
 
   const currentUser = state.users.find(u => u.id === state.currentUserId) || null
   const currentGym = state.gyms.find(g => g.id === currentUser?.gymId) || null
 
   return (
-    <AppContext.Provider value={{ state, dispatch, currentUser, currentGym }}>
+    <AppContext.Provider value={{
+      state,
+      dispatch: enhancedDispatch,
+      currentUser,
+      currentGym,
+      authReady,
+      authLoading,
+      login,
+      register,
+      logout,
+      joinGym,
+    }}>
       {children}
     </AppContext.Provider>
   )

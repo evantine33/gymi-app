@@ -1,37 +1,51 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { Dumbbell, Eye, EyeOff } from 'lucide-react'
+import { Dumbbell, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export default function Login() {
-  const { state, dispatch } = useApp()
+  const { login, authLoading, state } = useApp()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
-    const user = state.users.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    )
-    if (!user) {
-      setError('Invalid email or password.')
-      return
+    setLoading(true)
+    try {
+      const user = await login(email, password)
+      // Navigate based on role
+      const role = user?.role || state.users.find(u => u.email === email)?.role
+      navigate(role === 'coach' ? '/coach' : '/dashboard')
+    } catch (err) {
+      setError(err.message || 'Invalid email or password.')
+    } finally {
+      setLoading(false)
     }
-    dispatch({ type: 'LOGIN', userId: user.id })
-    navigate(user.role === 'coach' ? '/coach' : '/dashboard')
   }
 
-  const quickLogin = (role) => {
-    const user = state.users.find(u => u.role === role)
-    if (user) {
-      dispatch({ type: 'LOGIN', userId: user.id })
-      navigate(role === 'coach' ? '/coach' : '/dashboard')
+  // Demo quick login (only shown when Supabase is not configured)
+  const quickLogin = async (role) => {
+    setError('')
+    setLoading(true)
+    try {
+      const user = state.users.find(u => u.role === role)
+      if (user) {
+        await login(user.email, user.password)
+        navigate(role === 'coach' ? '/coach' : '/dashboard')
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
+
+  const isDemo = !import.meta.env.VITE_SUPABASE_URL
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
@@ -86,8 +100,8 @@ export default function Login() {
               </p>
             )}
 
-            <button type="submit" className="btn-primary w-full py-2.5">
-              Sign In
+            <button type="submit" disabled={loading || authLoading} className="btn-primary w-full py-2.5 flex items-center justify-center gap-2">
+              {(loading || authLoading) ? <><Loader2 className="w-4 h-4 animate-spin" /> Signing in…</> : 'Sign In'}
             </button>
           </form>
 
@@ -99,24 +113,28 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Demo shortcuts */}
-        <div className="mt-4 card">
-          <p className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Demo quick login</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => quickLogin('coach')}
-              className="flex-1 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-400 text-sm font-medium py-2 rounded-lg transition"
-            >
-              Coach View
-            </button>
-            <button
-              onClick={() => quickLogin('member')}
-              className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-medium py-2 rounded-lg transition"
-            >
-              Member View
-            </button>
+        {/* Demo shortcuts — only shown in demo/dev mode */}
+        {isDemo && (
+          <div className="mt-4 card">
+            <p className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Demo quick login</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => quickLogin('coach')}
+                disabled={loading}
+                className="flex-1 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-400 text-sm font-medium py-2 rounded-lg transition disabled:opacity-50"
+              >
+                Coach View
+              </button>
+              <button
+                onClick={() => quickLogin('member')}
+                disabled={loading}
+                className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-medium py-2 rounded-lg transition disabled:opacity-50"
+              >
+                Member View
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

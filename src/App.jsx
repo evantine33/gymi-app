@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider, useApp } from './context/AppContext'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -17,12 +17,28 @@ import MyPrograms from './pages/MyPrograms'
 import Benchmarks from './pages/Benchmarks'
 import Journal from './pages/Journal'
 import Store from './pages/Store'
+import { Dumbbell } from 'lucide-react'
+
+// ─── Loading Screen ────────────────────────────────────────────────────────────
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 gap-4">
+      <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center animate-pulse">
+        <Dumbbell className="w-9 h-9 text-white" />
+      </div>
+      <p className="text-gray-500 text-sm">Loading…</p>
+    </div>
+  )
+}
 
 // ─── Route Guard ──────────────────────────────────────────────────────────────
 function AppRoutes() {
-  const { currentUser } = useApp()
+  const { currentUser, authReady } = useApp()
 
-  // Not logged in → public pages only (store is publicly browsable)
+  // Wait for Supabase session check before rendering anything
+  if (!authReady) return <LoadingScreen />
+
+  // Not logged in → public pages only
   if (!currentUser) {
     return (
       <Routes>

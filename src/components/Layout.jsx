@@ -8,15 +8,15 @@ import {
 import { useState } from 'react'
 
 export default function Layout({ children }) {
-  const { currentUser, currentGym, dispatch } = useApp()
+  const { currentUser, currentGym, dispatch, logout } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const [codeCopied, setCodeCopied] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
 
-  const handleLogout = () => {
-    dispatch({ type: 'LOGOUT' })
+  const handleLogout = async () => {
+    await logout()
     navigate('/login')
   }
 

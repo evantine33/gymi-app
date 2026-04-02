@@ -1,49 +1,46 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { Dumbbell, Users, UserCheck, ShieldCheck } from 'lucide-react'
+import { Dumbbell, Users, UserCheck, ShieldCheck, Loader2 } from 'lucide-react'
 
 export default function Register() {
-  const { dispatch } = useApp()
+  const { register, authLoading } = useApp()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' })
   const [accountType, setAccountType] = useState('member')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return }
     if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return }
-    dispatch({
-      type: 'REGISTER',
-      user: { name: form.name, email: form.email, phone: form.phone, password: form.password, role: accountType },
-    })
-    // Send to login — routing guard will redirect to /create-gym or /join-gym after login
-    navigate('/login')
+
+    setLoading(true)
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: accountType,
+      })
+      // After register, user is logged in — go straight to gym setup
+      navigate(accountType === 'coach' ? '/create-gym' : '/join-gym')
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const accountTypes = [
-    {
-      role: 'coach',
-      icon: ShieldCheck,
-      label: 'Coach / Owner',
-      sub: 'Create & manage your gym',
-    },
-    {
-      role: 'member',
-      icon: UserCheck,
-      label: 'Gym Member',
-      sub: 'WOD + assigned programs',
-    },
-    {
-      role: 'nonmember',
-      icon: Users,
-      label: 'Non-Member',
-      sub: 'Assigned programs only',
-    },
+    { role: 'coach',     icon: ShieldCheck, label: 'Coach / Owner',  sub: 'Create & manage your gym' },
+    { role: 'member',    icon: UserCheck,   label: 'Gym Member',      sub: 'WOD + assigned programs' },
+    { role: 'nonmember', icon: Users,       label: 'Non-Member',      sub: 'Assigned programs only' },
   ]
 
   return (
@@ -94,7 +91,7 @@ export default function Register() {
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-1">Phone</label>
-              <input type="tel" className="input" placeholder="555-000-0000" value={form.phone} onChange={set('phone')} required />
+              <input type="tel" className="input" placeholder="555-000-0000" value={form.phone} onChange={set('phone')} />
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-1">Password</label>
@@ -109,8 +106,8 @@ export default function Register() {
               <p className="text-red-400 text-sm bg-red-900/20 border border-red-800 rounded-lg px-3 py-2">{error}</p>
             )}
 
-            <button type="submit" className="btn-primary w-full py-2.5 mt-1">
-              Create Account
+            <button type="submit" disabled={loading || authLoading} className="btn-primary w-full py-2.5 mt-1 flex items-center justify-center gap-2">
+              {(loading || authLoading) ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : 'Create Account'}
             </button>
           </form>
 
