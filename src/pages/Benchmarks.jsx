@@ -5,6 +5,12 @@ import {
   Star, TrendingUp, TrendingDown, Minus,
 } from 'lucide-react'
 
+const BENCHMARK_CATEGORIES = [
+  { value: 'strength',  label: 'Strength',  color: 'text-orange-400 bg-orange-500/10 border-orange-500/30' },
+  { value: 'endurance', label: 'Endurance', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
+  { value: 'other',     label: 'Other',     color: 'text-gray-400 bg-gray-700/40 border-gray-600/30' },
+]
+
 const BENCHMARK_TYPES = [
   { value: 'weight',   label: 'Weight',   units: ['lbs', 'kg'], higherIsBetter: true,  placeholder: '225' },
   { value: 'reps',     label: 'Reps',     units: ['reps'],      higherIsBetter: true,  placeholder: '20'  },
@@ -52,6 +58,7 @@ function NewBenchmarkModal({ isPersonal, onClose }) {
   const [description, setDescription] = useState('')
   const [type, setType] = useState('weight')
   const [unit, setUnit] = useState('lbs')
+  const [category, setCategory] = useState('strength')
 
   const typeInfo = BENCHMARK_TYPES.find(t => t.value === type)
 
@@ -70,6 +77,7 @@ function NewBenchmarkModal({ isPersonal, onClose }) {
         description: description.trim(),
         type,
         unit,
+        category,
         higherIsBetter: typeInfo.higherIsBetter,
         scope: isPersonal ? 'personal' : 'gym',
       },
@@ -97,6 +105,21 @@ function NewBenchmarkModal({ isPersonal, onClose }) {
             <label className="block text-sm text-gray-400 mb-1">Description (optional)</label>
             <input className="input" placeholder="e.g. Max effort, no belt"
               value={description} onChange={e => setDescription(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Category</label>
+            <div className="flex gap-2">
+              {BENCHMARK_CATEGORIES.map(c => (
+                <button key={c.value} type="button" onClick={() => setCategory(c.value)}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition ${
+                    category === c.value
+                      ? c.color
+                      : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                  }`}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-2">Type</label>
@@ -242,6 +265,7 @@ function MemberBenchmarkCard({ def, myEntries, isPersonal }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span className="font-bold text-white">{def.name}</span>
+            {def.category && (() => { const cat = BENCHMARK_CATEGORIES.find(c => c.value === def.category); return cat ? <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.color}`}>{cat.label}</span> : null })()}
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${TYPE_COLORS[def.type] || ''}`}>
               {BENCHMARK_TYPES.find(t => t.value === def.type)?.label} · {def.unit}
             </span>
@@ -356,6 +380,7 @@ function CoachBenchmarkCard({ def, allEntries, members }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <h3 className="font-bold text-white">{def.name}</h3>
+            {def.category && (() => { const cat = BENCHMARK_CATEGORIES.find(c => c.value === def.category); return cat ? <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.color}`}>{cat.label}</span> : null })()}
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${TYPE_COLORS[def.type] || ''}`}>
               {BENCHMARK_TYPES.find(t => t.value === def.type)?.label} · {def.unit}
             </span>
@@ -485,31 +510,61 @@ export default function Benchmarks() {
         </div>
       )}
 
-      {/* Coach view */}
+      {/* Coach view — grouped by category */}
       {isCoach && gymDefs.length > 0 && (
-        <div className="space-y-4">
-          {gymDefs.map(def => (
-            <CoachBenchmarkCard key={def.id} def={def} allEntries={gymEntries} members={gymMembers} />
-          ))}
+        <div className="space-y-8">
+          {BENCHMARK_CATEGORIES.map(cat => {
+            const catDefs = gymDefs.filter(d => (d.category || 'other') === cat.value)
+            if (!catDefs.length) return null
+            return (
+              <div key={cat.value}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${cat.color}`}>{cat.label}</span>
+                  <div className="flex-1 h-px bg-gray-800" />
+                </div>
+                <div className="space-y-4">
+                  {catDefs.map(def => (
+                    <CoachBenchmarkCard key={def.id} def={def} allEntries={gymEntries} members={gymMembers} />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 
-      {/* Member view */}
+      {/* Member view — grouped by category */}
       {!isCoach && allMemberDefs.length > 0 && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {gymDefs.length > 0 && (
-            <div className="space-y-4">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Gym Benchmarks</p>
-              {gymDefs.map(def => (
-                <MemberBenchmarkCard key={def.id} def={def}
-                  myEntries={myEntries.filter(e => e.benchmarkId === def.id)}
-                  isPersonal={false} />
-              ))}
+            <div className="space-y-6">
+              {BENCHMARK_CATEGORIES.map(cat => {
+                const catDefs = gymDefs.filter(d => (d.category || 'other') === cat.value)
+                if (!catDefs.length) return null
+                return (
+                  <div key={cat.value}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${cat.color}`}>{cat.label}</span>
+                      <div className="flex-1 h-px bg-gray-800" />
+                    </div>
+                    <div className="space-y-4">
+                      {catDefs.map(def => (
+                        <MemberBenchmarkCard key={def.id} def={def}
+                          myEntries={myEntries.filter(e => e.benchmarkId === def.id)}
+                          isPersonal={false} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
           {personalDefs.length > 0 && (
             <div className="space-y-4">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold">Personal</p>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full border text-gray-400 bg-gray-700/40 border-gray-600/30">Personal</span>
+                <div className="flex-1 h-px bg-gray-800" />
+              </div>
               {personalDefs.map(def => (
                 <MemberBenchmarkCard key={def.id} def={def}
                   myEntries={myEntries.filter(e => e.benchmarkId === def.id)}
