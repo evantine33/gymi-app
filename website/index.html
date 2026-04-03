@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gymi — Where Serious Coaches Build Stronger Gyms</title>
+  <meta name="description" content="Gymi is the all-in-one coaching platform for gyms. Program workouts, track member progress, and build a community your athletes never want to leave." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f97316;
+      --orange-dim: #ea6c0a;
+      --orange-glow: rgba(249,115,22,0.15);
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --bg3: #141414;
+      --border: rgba(255,255,255,0.07);
+      --text: #ffffff;
+      --muted: #71717a;
+      --subtle: #3f3f46;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 68px;
+      border-bottom: 1px solid transparent;
+      transition: background .3s, border-color .3s, backdrop-filter .3s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,0.85);
+      border-color: var(--border);
+      backdrop-filter: blur(20px);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: var(--orange);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-icon svg { width: 20px; height: 20px; fill: white; }
+    .nav-logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .btn-nav {
+      background: var(--orange);
+      color: white;
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
+    }
+    .btn-nav:hover { background: var(--orange-dim); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 5% 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(249,115,22,0.1);
+      border: 1px solid rgba(249,115,22,0.25);
+      color: var(--orange);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      background: var(--orange);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.4); }
+    }
+    h1 {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      max-width: 900px;
+      animation: fadeUp .6s .1s ease both;
+    }
+    h1 .accent { color: var(--orange); }
+    .hero-sub {
+      margin-top: 24px;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      font-weight: 400;
+      animation: fadeUp .6s .2s ease both;
+    }
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 40px;
+      justify-content: center;
+      animation: fadeUp .6s .3s ease both;
+    }
+    .btn-primary {
+      background: var(--orange);
+      color: white;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 0 0 0 rgba(249,115,22,0);
+    }
+    .btn-primary:hover {
+      background: var(--orange-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(249,115,22,0.35);
+    }
+    .btn-ghost {
+      color: var(--text);
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      transition: background .2s, border-color .2s, transform .15s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .btn-ghost svg { width: 18px; height: 18px; opacity: .7; }
+
+    .hero-social {
+      margin-top: 56px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      animation: fadeUp .6s .4s ease both;
+    }
+    .hero-avatars {
+      display: flex;
+    }
+    .hero-avatars span {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-left: -8px;
+      font-size: 0.7rem;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+    .hero-avatars span:first-child { margin-left: 0; }
+    .hero-avatars .a1 { background: #3b82f6; }
+    .hero-avatars .a2 { background: #8b5cf6; }
+    .hero-avatars .a3 { background: #10b981; }
+    .hero-avatars .a4 { background: #f59e0b; }
+    .hero-social-text { font-size: 0.85rem; color: var(--muted); }
+    .hero-social-text strong { color: var(--text); }
+
+    /* ── SCREENSHOT MOCKUP ── */
+    .mockup-section {
+      padding: 0 5% 100px;
+      display: flex;
+      justify-content: center;
+      animation: fadeUp .8s .5s ease both;
+    }
+    .mockup-wrap {
+      position: relative;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .mockup-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(249,115,22,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .mockup-browser {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .mockup-bar {
+      background: var(--bg2);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mockup-dots { display: flex; gap: 6px; }
+    .mockup-dots span {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .mockup-dots .d1 { background: #ef4444; }
+    .mockup-dots .d2 { background: #f59e0b; }
+    .mockup-dots .d3 { background: #22c55e; }
+    .mockup-url {
+      flex: 1;
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .mockup-body {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: 400px;
+    }
+    .mockup-sidebar {
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+    }
+    .mock-gym-name {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .mock-gym-sub { font-size: 0.65rem; color: var(--muted); margin-bottom: 20px; }
+    .mock-code-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 20px;
+    }
+    .mock-code-label { font-size: 0.6rem; color: var(--muted); margin-bottom: 2px; }
+    .mock-code { font-size: 0.85rem; font-weight: 800; color: var(--orange); letter-spacing: 0.15em; }
+    .mock-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .mock-nav-item.active {
+      background: rgba(249,115,22,0.12);
+      color: var(--orange);
+    }
+    .mock-nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .mockup-main { padding: 24px; }
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .mock-title { font-size: 1.1rem; font-weight: 800; }
+    .mock-btn {
+      background: var(--orange);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .mock-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .mock-day-label { text-align: center; font-size: 0.6rem; color: var(--muted); padding: 4px 0; }
+    .mock-day {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: var(--bg3);
+    }
+    .mock-day.today {
+      background: var(--orange);
+      color: white;
+      font-weight: 700;
+    }
+    .mock-day.has-workout { background: rgba(249,115,22,0.15); color: var(--orange); }
+    .mock-workout-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .mock-workout-date { font-size: 0.65rem; color: var(--muted); margin-bottom: 6px; }
+    .mock-workout-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+    .mock-exercises { display: flex; flex-direction: column; gap: 4px; }
+    .mock-ex {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .mock-ex-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+
+    /* ── LOGOS BAR ── */
+    .logos-bar {
+      padding: 40px 5%;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .logos-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+    .logos-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      opacity: 0.35;
+    }
+    .logo-item { font-size: 1rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+
+    /* ── SECTION SHELL ── */
+    section { padding: 100px 5%; }
+    .section-tag {
+      display: inline-block;
+      color: var(--orange);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      max-width: 700px;
+    }
+    .section-sub {
+      margin-top: 16px;
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    /* ── FEATURES ── */
+    .features-section { background: var(--bg); }
+    .features-header { text-align: center; margin-bottom: 60px; }
+    .features-header h2, .features-header .section-sub { margin-left: auto; margin-right: auto; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .feature-card {
+      background: var(--bg2);
+      padding: 36px 32px;
+      transition: background .2s;
+    }
+    .feature-card:hover { background: var(--bg3); }
+    .feature-icon {
+      width: 48px; height: 48px;
+      background: var(--orange-glow);
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .feature-icon svg { width: 22px; height: 22px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .hiw-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .hiw-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hiw-steps { display: flex; flex-direction: column; gap: 32px; }
+    .hiw-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      cursor: pointer;
+      padding: 20px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: all .2s;
+    }
+    .hiw-step:hover, .hiw-step.active {
+      background: var(--bg3);
+      border-color: var(--border);
+    }
+    .hiw-step.active .hiw-num { background: var(--orange); color: white; border-color: var(--orange); }
+    .hiw-num {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--subtle);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .hiw-step-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .hiw-step-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+    .hiw-visual {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hiw-visual-content { text-align: center; }
+    .hiw-visual-icon {
+      width: 64px; height: 64px;
+      background: var(--orange-glow);
+      border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .hiw-visual-icon svg { width: 30px; height: 30px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .hiw-visual-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+    .hiw-visual-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; max-width: 260px; margin: 0 auto; }
+    .hiw-code-example {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 18px;
+    }
+    .hiw-code-label { font-size: 0.7rem; color: var(--muted); }
+    .hiw-code { font-size: 1.4rem; font-weight: 900; color: var(--orange); letter-spacing: 0.2em; }
+
+    /* ── SPLIT SECTION ── */
+    .split-section { background: var(--bg); }
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .split-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .split-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--orange), transparent);
+    }
+    .split-card-tag {
+      display: inline-block;
+      background: var(--orange-glow);
+      color: var(--orange);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .split-card h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .split-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .split-bullets { display: flex; flex-direction: column; gap: 12px; }
+    .split-bullet {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+    .split-bullet-dot {
+      width: 18px; height: 18px;
+      background: var(--orange-glow);
+      border: 1px solid rgba(249,115,22,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .split-bullet-dot svg { width: 10px; height: 10px; stroke: var(--orange); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .stat-cell {
+      background: var(--bg3);
+      padding: 36px 24px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--orange);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial-section {
+      background: var(--bg);
+      text-align: center;
+    }
+    .testimonial-card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 52px 48px;
+      position: relative;
+    }
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: 20px; left: 40px;
+      font-size: 8rem;
+      font-weight: 900;
+      color: var(--orange);
+      opacity: 0.12;
+      line-height: 1;
+    }
+    .testimonial-text {
+      font-size: 1.2rem;
+      line-height: 1.65;
+      font-weight: 500;
+      margin-bottom: 32px;
+      color: var(--text);
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .testimonial-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), #c2410c);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .testimonial-name { font-weight: 700; font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.8rem; color: var(--muted); }
+    .testimonial-stars {
+      color: var(--orange);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--bg);
+      text-align: center;
+    }
+    .cta-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(249,115,22,0.03) 100%);
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: 28px;
+      padding: 72px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-card h2 {
+      margin: 0 auto 16px;
+      text-align: center;
+    }
+    .cta-card .section-sub { margin: 0 auto 40px; text-align: center; }
+    .cta-btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .cta-note { margin-top: 16px; font-size: 0.8rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 60px 5% 40px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer-brand { }
+    .footer-brand .nav-logo { margin-bottom: 14px; }
+    .footer-brand p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; max-width: 240px; }
+    .footer-col-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-copy { font-size: 0.8rem; color: var(--muted); }
+    .footer-orange { color: var(--orange); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .mockup-body { grid-template-columns: 1fr; }
+      .mockup-sidebar { display: none; }
+      .hiw-inner { grid-template-columns: 1fr; }
+      .hiw-visual { display: none; }
+      .split-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .nav-link { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .testimonial-card { padding: 36px 24px; }
+      .cta-card { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M6.5 6.5h11v11h-11zM2 2h4v4H2zM18 2h4v4h-4zM2 18h4v4H2zM18 18h4v4h-4z"/></svg>
+    </div>
+    <span class="nav-logo-text">Gymi</span>
+  </a>
+  <div class="nav-right">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#how-it-works" class="nav-link">How it works</a>
+    <a href="https://getgymi.ai/login" class="btn-nav">Log In →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Now live — built for serious coaches
+  </div>
+  <h1>Where <span class="accent">serious coaches</span><br>build stronger gyms.</h1>
+  <p class="hero-sub">Gymi gives you the tools to program smarter, manage your members, and build a gym community your athletes never want to leave.</p>
+  <div class="hero-cta">
+    <a href="https://getgymi.ai/login" class="btn-primary">Start for free →</a>
+    <a href="#how-it-works" class="btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
+      See how it works
+    </a>
+  </div>
+  <div class="hero-social">
+    <div class="hero-avatars">
+      <span class="a1">JM</span>
+      <span class="a2">SR</span>
+      <span class="a3">KT</span>
+      <span class="a4">EP</span>
+    </div>
+    <p class="hero-social-text">Joined by <strong>coaches & gyms</strong> across the US</p>
+  </div>
+</section>
+
+<!-- APP MOCKUP -->
+<div class="mockup-section">
+  <div class="mockup-wrap reveal">
+    <div class="mockup-glow"></div>
+    <div class="mockup-browser">
+      <div class="mockup-bar">
+        <div class="mockup-dots">
+          <span class="d1"></span><span class="d2"></span><span class="d3"></span>
+        </div>
+        <div class="mockup-url">getgymi.ai/dashboard</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-sidebar">
+          <div class="mock-gym-name">IRON HOUSE GYM</div>
+          <div class="mock-gym-sub">powered by Gymi</div>
+          <div class="mock-code-box">
+            <div class="mock-code-label">Member Join Code</div>
+            <div class="mock-code">8X2Q8G</div>
+          </div>
+          <div class="mock-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </div>
+          <div class="mock-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Members
+          </div>
+          <div class="mock-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Volume
+          </div>
+          <div class="mock-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Programs
+          </div>
+        </div>
+        <div class="mockup-main">
+          <div class="mock-header">
+            <div class="mock-title">Dashboard</div>
+            <div class="mock-btn">+ Add Workout</div>
+          </div>
+          <div class="mock-cal-grid">
+            <div class="mock-day-label">M</div><div class="mock-day-label">T</div><div class="mock-day-label">W</div><div class="mock-day-label">T</div><div class="mock-day-label">F</div><div class="mock-day-label">S</div><div class="mock-day-label">S</div>
+            <div class="mock-day">1</div><div class="mock-day has-workout">2</div><div class="mock-day">3</div><div class="mock-day today">4</div><div class="mock-day has-workout">5</div><div class="mock-day">6</div><div class="mock-day">7</div>
+            <div class="mock-day has-workout">8</div><div class="mock-day">9</div><div class="mock-day has-workout">10</div><div class="mock-day">11</div><div class="mock-day">12</div><div class="mock-day has-workout">13</div><div class="mock-day">14</div>
+          </div>
+          <div class="mock-workout-card">
+            <div class="mock-workout-date">Thursday, April 4</div>
+            <div class="mock-workout-title">Lower Body Strength</div>
+            <div class="mock-exercises">
+              <div class="mock-ex"><span class="mock-ex-dot"></span>Back Squat — 5x5 @ 75%</div>
+              <div class="mock-ex"><span class="mock-ex-dot"></span>Romanian Deadlift — 3x10</div>
+              <div class="mock-ex"><span class="mock-ex-dot"></span>Bulgarian Split Squat — 3x8</div>
+              <div class="mock-ex"><span class="mock-ex-dot"></span>Leg Press — 4x12</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOS -->
+<div class="logos-bar reveal">
+  <div class="logos-label">Trusted by gyms & coaching programs</div>
+  <div class="logos-row">
+    <span class="logo-item">IRON HOUSE</span>
+    <span class="logo-item">APEX STRENGTH</span>
+    <span class="logo-item">GRIND COLLECTIVE</span>
+    <span class="logo-item">FORGE FITNESS</span>
+    <span class="logo-item">PEAK PERFORMANCE</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="features-header reveal">
+    <span class="section-tag">Features</span>
+    <h2>Everything your gym needs.<br>Nothing it doesn't.</h2>
+    <p class="section-sub">Gymi is purpose-built for coaches who want to focus on coaching — not wrestling with software.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="feature-title">Workout Programming</div>
+      <div class="feature-desc">Build daily workouts with exercises, sets, reps, and percentages. Schedule them on your gym's calendar for all members to see.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="feature-title">Member Management</div>
+      <div class="feature-desc">Invite athletes with a simple join code. See who's logging, track engagement, and manage your gym roster from one place.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="feature-title">Volume Tracking</div>
+      <div class="feature-desc">Visualize training volume over time. Help members understand their load and prevent overtraining with data-driven insights.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      </div>
+      <div class="feature-title">Benchmarks & PRs</div>
+      <div class="feature-desc">Track personal records and benchmark lifts across your entire gym. Celebrate wins and keep athletes motivated to come back.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="feature-title">Community & Messages</div>
+      <div class="feature-desc">Keep your gym community connected with messaging and a community feed. Build culture, not just fitness.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </div>
+      <div class="feature-title">Gym Store</div>
+      <div class="feature-desc">Sell merchandise, supplements, and programs directly to your members through your gym's built-in store.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw-section" id="how-it-works">
+  <div class="hiw-inner">
+    <div>
+      <span class="section-tag reveal">How it works</span>
+      <h2 class="reveal">Up and running in minutes.</h2>
+      <p class="section-sub reveal" style="margin-bottom: 40px;">No complicated setup. No IT department required. Gymi gets out of your way so you can focus on coaching.</p>
+      <div class="hiw-steps">
+        <div class="hiw-step active" data-step="0">
+          <div class="hiw-num">1</div>
+          <div>
+            <div class="hiw-step-title">Create your gym</div>
+            <div class="hiw-step-desc">Sign up as a coach and create your gym in seconds. Gymi generates a unique join code for your members automatically.</div>
+          </div>
+        </div>
+        <div class="hiw-step" data-step="1">
+          <div class="hiw-num">2</div>
+          <div>
+            <div class="hiw-step-title">Invite your athletes</div>
+            <div class="hiw-step-desc">Share your 6-character join code. Members sign up and are instantly connected to your gym's workouts and community.</div>
+          </div>
+        </div>
+        <div class="hiw-step" data-step="2">
+          <div class="hiw-num">3</div>
+          <div>
+            <div class="hiw-step-title">Program, track, grow</div>
+            <div class="hiw-step-desc">Post daily workouts, track member progress, run benchmarks, and watch your gym thrive — all from one dashboard.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hiw-visual" id="hiw-visual">
+      <div class="hiw-visual-content">
+        <div class="hiw-visual-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="hiw-visual-title">Your gym, your brand</div>
+        <div class="hiw-visual-desc">Create your gym profile and give it a name your athletes will be proud to train under.</div>
+        <div class="hiw-code-example">
+          <div class="hiw-code-label">Join Code</div>
+          <div class="hiw-code">8X2Q8G</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPLIT SECTION -->
+<section class="split-section">
+  <div style="text-align:center; margin-bottom:60px;" class="reveal">
+    <span class="section-tag">Built for everyone</span>
+    <h2 style="margin: 0 auto;">One platform, two powerful experiences.</h2>
+  </div>
+  <div class="split-grid">
+    <div class="split-card reveal">
+      <div class="split-card-tag">For Coaches</div>
+      <h3>Run your gym like a pro.</h3>
+      <p>Stop juggling spreadsheets, messaging apps, and separate tools. Gymi puts everything you need to manage a world-class gym in one place.</p>
+      <div class="split-bullets">
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Design and schedule workouts weeks in advance
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Monitor member attendance and engagement
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Run benchmark testing across your whole gym
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Message members and build community
+        </div>
+      </div>
+    </div>
+    <div class="split-card reveal">
+      <div class="split-card-tag">For Members</div>
+      <h3>Train with purpose every day.</h3>
+      <p>Know exactly what you're doing before you walk through the door. Log your results, track your progress, and see how you stack up.</p>
+      <div class="split-bullets">
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          See today's workout the moment you open the app
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Log weights, reps, and notes for every set
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Track personal records and benchmark lifts
+        </div>
+        <div class="split-bullet">
+          <div class="split-bullet-dot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Stay connected to your gym's community
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid reveal">
+    <div class="stat-cell">
+      <div class="stat-num">2 min</div>
+      <div class="stat-label">to create your gym</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">1 code</div>
+      <div class="stat-label">to onboard all members</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">focused on coaching</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">$0</div>
+      <div class="stat-label">to get started today</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial-section">
+  <div class="testimonial-card reveal">
+    <div class="testimonial-stars">★★★★★</div>
+    <p class="testimonial-text">"Gymi changed how I run my gym. My members know exactly what they're doing every day, they're logging their results, and I can actually see who's putting in the work. It's the only tool I recommend to other coaches."</p>
+    <div class="testimonial-author">
+      <div class="testimonial-avatar">JR</div>
+      <div>
+        <div class="testimonial-name">Jake Rodriguez</div>
+        <div class="testimonial-role">Head Coach, Apex Strength & Conditioning</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-card reveal">
+    <div class="cta-glow"></div>
+    <span class="section-tag">Get started today</span>
+    <h2>Your gym deserves better software.</h2>
+    <p class="section-sub">Join coaches who have made the switch. Set up your gym in minutes — no credit card required.</p>
+    <div class="cta-btns">
+      <a href="https://getgymi.ai/login" class="btn-primary" style="font-size:1.05rem; padding: 16px 36px;">Create your gym free →</a>
+      <a href="https://getgymi.ai/login" class="btn-ghost" style="font-size:1.05rem; padding: 16px 36px;">Log in</a>
+    </div>
+    <p class="cta-note">Free to start · No setup fees · Cancel anytime</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="/" class="nav-logo">
+        <div class="nav-logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M6.5 6.5h11v11h-11zM2 2h4v4H2zM18 2h4v4h-4zM2 18h4v4H2zM18 18h4v4h-4z"/></svg>
+        </div>
+        <span class="nav-logo-text">Gymi</span>
+      </a>
+      <p>The coaching platform built for gyms that take performance seriously.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="https://getgymi.ai/login">Log in</a>
+        <a href="https://getgymi.ai/login">Sign up</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">For Coaches</div>
+      <div class="footer-links">
+        <a href="https://getgymi.ai/login">Create a gym</a>
+        <a href="https://getgymi.ai/login">Manage members</a>
+        <a href="https://getgymi.ai/login">Program workouts</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">For Members</div>
+      <div class="footer-links">
+        <a href="https://getgymi.ai/login">Join your gym</a>
+        <a href="https://getgymi.ai/login">Track progress</a>
+        <a href="https://getgymi.ai/login">View workouts</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 <span class="footer-orange">Gymi</span>. Built for coaches who don't settle.</div>
+    <div class="footer-copy">Made with 🧡 for the fitness community</div>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // How it works step switcher
+  const steps = document.querySelectorAll('.hiw-step');
+  const visual = document.getElementById('hiw-visual');
+  const visualContent = [
+    {
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      title: 'Your gym, your brand',
+      desc: 'Create your gym profile and give it a name your athletes will be proud to train under.',
+      extra: `<div class="hiw-code-example"><div class="hiw-code-label">Join Code</div><div class="hiw-code">8X2Q8G</div></div>`
+    },
+    {
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      title: 'Athletes join instantly',
+      desc: 'Share the 6-character code. Members register and are connected to your workouts in under 60 seconds.',
+      extra: `<div class="hiw-code-example"><div class="hiw-code-label">Members joined</div><div class="hiw-code" style="letter-spacing:0">24 🔥</div></div>`
+    },
+    {
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      title: 'Watch your gym grow',
+      desc: 'Post workouts, track volume, run benchmarks — everything you need to build an elite program.',
+      extra: `<div class="hiw-code-example"><div class="hiw-code-label">Workouts logged</div><div class="hiw-code" style="letter-spacing:0">1,284</div></div>`
+    }
+  ];
+
+  steps.forEach((step, i) => {
+    step.addEventListener('click', () => {
+      steps.forEach(s => s.classList.remove('active'));
+      step.classList.add('active');
+      const c = visualContent[i];
+      visual.innerHTML = `<div class="hiw-visual-content">
+        <div class="hiw-visual-icon">${c.icon}</div>
+        <div class="hiw-visual-title">${c.title}</div>
+        <div class="hiw-visual-desc">${c.desc}</div>
+        ${c.extra}
+      </div>`;
+    });
+  });
+</script>
+
+</body>
+</html>
