@@ -14,6 +14,18 @@ function loadOneSignal() {
   document.head.appendChild(s)
 }
 
+function getStatus(OneSignal) {
+  try {
+    const opted = OneSignal.User.PushSubscription.optedIn
+    const perm = OneSignal.Notifications.permissionNative // 'granted' | 'denied' | 'default'
+    if (opted) return 'granted'
+    if (perm === 'denied') return 'denied'
+    return 'default'
+  } catch {
+    return 'default'
+  }
+}
+
 export function usePushNotifications() {
   const [status, setStatus] = useState('loading') // 'loading' | 'unsupported' | 'default' | 'granted' | 'denied'
   const ready = useRef(false)
@@ -36,9 +48,12 @@ export function usePushNotifications() {
           notifyButton: { enable: false },
           allowLocalhostAsSecureOrigin: true,
         })
-        const perm = await OneSignal.Notifications.permission
-        const opted = await OneSignal.User.PushSubscription.optedIn
-        setStatus(opted && perm ? 'granted' : perm === false ? 'denied' : 'default')
+        setStatus(getStatus(OneSignal))
+
+        // Keep status in sync if subscription changes (e.g. user revokes in browser)
+        OneSignal.User.PushSubscription.addEventListener('change', () => {
+          setStatus(getStatus(OneSignal))
+        })
       } catch {
         setStatus('unsupported')
       }
@@ -48,19 +63,23 @@ export function usePushNotifications() {
   const subscribe = async () => {
     if (!window.OneSignal) return
     try {
-      await window.OneSignal.Notifications.requestPermission()
-      const perm = await window.OneSignal.Notifications.permission
-      const opted = await window.OneSignal.User.PushSubscription.optedIn
-      setStatus(opted && perm ? 'granted' : 'denied')
-    } catch {
+      // optIn() does BOTH: requests browser permission AND registers with OneSignal
+      await window.OneSignal.User.PushSubscription.optIn()
+      setStatus(getStatus(window.OneSignal))
+    } catch (e) {
+      console.error('Push subscribe error:', e)
       setStatus('denied')
     }
   }
 
   const unsubscribe = async () => {
     if (!window.OneSignal) return
-    await window.OneSignal.User.PushSubscription.optOut()
-    setStatus('default')
+    try {
+      await window.OneSignal.User.PushSubscription.optOut()
+      setStatus('default')
+    } catch (e) {
+      console.error('Push unsubscribe error:', e)
+    }
   }
 
   return { status, subscribe, unsubscribe }
