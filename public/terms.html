@@ -3,333 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms &amp; Conditions — Gymi</title>
-  <meta name="description" content="Gymi Terms and Conditions — the rules and agreements that govern your use of the Gymi app and services." />
+  <title>Terms of Service — Gymi AI Workouts</title>
+  <meta name="description" content="Gymi AI Workouts Terms of Service — the rules and agreements that govern your use of the app." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --orange: #f97316;
-      --bg: #080808;
-      --bg2: #0f0f0f;
-      --bg3: #141414;
+      --blue: #3b82f6;
+      --bg: #080810; --bg2: #0d0d1a; --bg3: #12121f;
       --border: rgba(255,255,255,0.07);
-      --text: #ffffff;
-      --muted: #a1a1aa;
-      --subtle: #52525b;
+      --text: #ffffff; --muted: #a1a1aa; --subtle: #52525b;
     }
-
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      line-height: 1.7;
+      background: var(--bg); color: var(--text);
+      -webkit-font-smoothing: antialiased; line-height: 1.7;
     }
-
-    /* NAV */
     nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 5%;
-      height: 64px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg2);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 64px;
+      border-bottom: 1px solid var(--border); background: var(--bg2);
     }
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px; text-decoration: none;
-    }
-    .nav-logo-icon {
-      width: 32px; height: 32px;
-      background: var(--orange);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .nav-logo-text { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
-    .nav-back {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color .2s;
-    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 30px; height: 30px; border-radius: 7px; }
+    .nav-logo-text { font-size: 1.05rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-back { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color .2s; }
     .nav-back:hover { color: var(--text); }
-
-    /* CONTENT */
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 64px 24px 100px;
-    }
+    .container { max-width: 760px; margin: 0 auto; padding: 64px 24px 100px; }
     .doc-label {
       display: inline-block;
-      background: rgba(249,115,22,0.1);
-      border: 1px solid rgba(249,115,22,0.25);
-      color: var(--orange);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 20px;
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+      color: var(--blue); font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 100px; margin-bottom: 20px;
     }
     .doc-title {
-      font-size: 2.6rem;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      margin-bottom: 16px;
+      font-size: 2.6rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px;
     }
     .doc-meta {
-      color: var(--muted);
-      font-size: 0.875rem;
-      margin-bottom: 48px;
-      padding-bottom: 32px;
-      border-bottom: 1px solid var(--border);
+      color: var(--muted); font-size: 0.875rem; margin-bottom: 48px;
+      padding-bottom: 32px; border-bottom: 1px solid var(--border);
     }
     h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-top: 48px;
-      margin-bottom: 14px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 1.2rem; font-weight: 700; margin-top: 44px; margin-bottom: 14px; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
     }
     h2::before {
-      content: '';
-      display: inline-block;
-      width: 4px;
-      height: 20px;
-      background: var(--orange);
-      border-radius: 2px;
-      flex-shrink: 0;
+      content: ''; display: inline-block; width: 4px; height: 20px;
+      background: var(--blue); border-radius: 2px; flex-shrink: 0;
     }
-    p {
-      color: var(--muted);
-      margin-bottom: 16px;
-      font-size: 0.95rem;
-    }
-    ul {
-      color: var(--muted);
-      margin-bottom: 16px;
-      padding-left: 20px;
-      font-size: 0.95rem;
-    }
-    ul li { margin-bottom: 8px; }
+    p { color: var(--muted); margin-bottom: 14px; font-size: 0.95rem; }
+    ul { color: var(--muted); margin-bottom: 14px; padding-left: 20px; font-size: 0.95rem; }
+    ul li { margin-bottom: 7px; }
     strong { color: var(--text); font-weight: 600; }
-    a { color: var(--orange); text-decoration: none; }
+    a { color: var(--blue); text-decoration: none; }
     a:hover { text-decoration: underline; }
-
     .info-box {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--orange);
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin: 24px 0;
-      font-size: 0.9rem;
-      color: var(--muted);
+      background: var(--bg3); border: 1px solid var(--border);
+      border-left: 3px solid var(--blue); border-radius: 10px;
+      padding: 18px 20px; margin: 24px 0; font-size: 0.9rem; color: var(--muted);
     }
-
     .warning-box {
-      background: rgba(239,68,68,0.05);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-left: 3px solid #ef4444;
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin: 24px 0;
-      font-size: 0.9rem;
-      color: var(--muted);
+      background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.18);
+      border-left: 3px solid #ef4444; border-radius: 10px;
+      padding: 18px 20px; margin: 24px 0; font-size: 0.9rem; color: var(--muted);
     }
-
-    /* FOOTER */
     .doc-footer {
-      margin-top: 64px;
-      padding-top: 32px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
+      margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
     }
     .doc-footer-links { display: flex; gap: 20px; }
-    .doc-footer-link {
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-decoration: none;
-      transition: color .2s;
-    }
+    .doc-footer-link { color: var(--muted); font-size: 0.85rem; text-decoration: none; transition: color .2s; }
     .doc-footer-link:hover { color: var(--text); }
     .doc-footer-copy { color: var(--subtle); font-size: 0.8rem; }
   </style>
 </head>
 <body>
-
   <nav>
     <a href="/consumer" class="nav-logo">
-      <div class="nav-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <path d="M6 4v16M18 4v16M2 9h4M18 9h4M2 15h4M18 15h4"/>
-        </svg>
-      </div>
-      <span class="nav-logo-text">Gymi</span>
+      <img src="/gymi-logo.png" alt="Gymi" />
+      <span class="nav-logo-text">Gymi AI Workouts</span>
     </a>
-    <a href="/consumer" class="nav-back">
-      ← Back to Gymi
-    </a>
+    <a href="/consumer" class="nav-back">← Back</a>
   </nav>
 
   <div class="container">
     <div class="doc-label">Legal</div>
-    <h1 class="doc-title">Terms &amp; Conditions</h1>
+    <h1 class="doc-title">Terms of Service</h1>
     <p class="doc-meta">
-      <strong>Effective Date:</strong> April 10, 2025 &nbsp;·&nbsp;
-      <strong>Last Updated:</strong> April 10, 2025 &nbsp;·&nbsp;
-      Applies to the Gymi mobile application and getgymi.ai
+      <strong>Gymi AI Workouts</strong> &nbsp;·&nbsp; Petruccelli Labs &nbsp;·&nbsp;
+      <a href="mailto:legal@gymiapp.com">legal@gymiapp.com</a>
     </p>
 
     <div class="info-box">
-      <strong>Please read these Terms carefully.</strong> By downloading, installing, or using the Gymi app or website, you agree to be bound by these Terms and Conditions. If you do not agree, do not use Gymi.
+      By downloading or using Gymi AI Workouts ("Gymi", "the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the App. These Terms apply to all users, including free and paid subscribers.
     </div>
 
-    <h2>1. Acceptance of Terms</h2>
-    <p>These Terms and Conditions ("Terms") govern your access to and use of the Gymi mobile application, website at <a href="https://getgymi.ai">getgymi.ai</a>, and all related services (collectively, "Gymi" or the "Service"), provided by Gymi ("we," "us," or "our").</p>
-    <p>By creating an account or using the Service, you confirm that you are at least 13 years of age, that you have read and understood these Terms, and that you agree to be legally bound by them.</p>
+    <h2>1. Description of Service</h2>
+    <p>Gymi is an AI-powered personal fitness assistant that generates workout plans, tracks health metrics via Apple HealthKit, and provides fitness coaching through a conversational interface. Gymi is available on iOS devices running iOS 17 or later.</p>
 
-    <h2>2. Description of Service</h2>
-    <p>Gymi is a personal fitness tracking application that allows users to:</p>
-    <ul>
-      <li>Log and track workouts, exercises, and athletic performance</li>
-      <li>Track personal health metrics (weight, body fat, steps, sleep, heart rate, etc.)</li>
-      <li>Store and view progress photos</li>
-      <li>Build and monitor daily habits</li>
-      <li>Receive workout programs from affiliated gyms and coaches</li>
-      <li>Participate in gym community features</li>
-      <li>Set and track personal fitness benchmarks and goals</li>
-    </ul>
-    <p>Gymi is a fitness logging tool only. It is not a medical device, healthcare service, or substitute for professional medical advice.</p>
+    <h2>2. Subscriptions &amp; Billing</h2>
+    <p><strong>Free Plan</strong></p>
+    <p>Free users receive one AI-generated workout per day.</p>
 
-    <h2>3. Account Registration</h2>
-    <p>To use Gymi, you must create an account by providing your name, email address, and a password. You agree to:</p>
-    <ul>
-      <li>Provide accurate, current, and complete information during registration</li>
-      <li>Maintain the security of your password and not share it with others</li>
-      <li>Notify us immediately at <a href="mailto:support@getgymi.ai">support@getgymi.ai</a> if you suspect unauthorized access to your account</li>
-      <li>Take responsibility for all activity that occurs under your account</li>
-    </ul>
-    <p>We reserve the right to suspend or terminate accounts that provide false information or violate these Terms.</p>
+    <p><strong>Gymi Pro</strong></p>
+    <p>A paid monthly subscription that provides unlimited personalized workouts, AI health coaching, health data integration, and notifications. Billing is charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID Account Settings. No refunds are provided for unused portions of a subscription period.</p>
 
-    <h2>4. Health &amp; Fitness Disclaimer</h2>
+    <h2>3. Not Medical Advice</h2>
     <div class="warning-box">
-      <strong>Important:</strong> Gymi is not a medical device and does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before beginning any new exercise or diet program, especially if you have a pre-existing medical condition.
+      <strong>IMPORTANT:</strong> Gymi is a fitness tool, not a medical service. All workout plans, health insights, and AI responses are for general informational and fitness purposes only. Nothing in the App constitutes medical advice, diagnosis, or treatment.
     </div>
-    <p>The workouts, programs, and health tracking features in Gymi are provided for informational and motivational purposes only. Gymi, its coaches, and affiliated gyms are not responsible for any injury, illness, or adverse health outcome resulting from your use of the Service.</p>
-    <p>You acknowledge that:</p>
+    <p>Always consult a qualified healthcare professional before beginning any exercise program, particularly if you have a pre-existing medical condition, injury, or health concern. Stop exercising and seek medical attention if you experience pain, dizziness, shortness of breath, or any unusual symptoms.</p>
+
+    <h2>4. Assumption of Risk</h2>
+    <p>Physical exercise carries inherent risks including, but not limited to, muscle strain, joint injury, cardiovascular events, and other physical harm. By using Gymi, you acknowledge and voluntarily assume all risks associated with following the workout plans and recommendations generated by the App. You are solely responsible for exercising within your physical limits.</p>
+
+    <h2>5. Acceptable Use</h2>
+    <p>You agree not to:</p>
     <ul>
-      <li>Physical exercise carries inherent risks, including injury or death</li>
-      <li>You participate in any workout or program at your own risk</li>
-      <li>Health metrics you enter are self-reported and not medically verified</li>
-      <li>Gymi is not a substitute for professional medical, nutritional, or psychological care</li>
+      <li>Use the App for any unlawful purpose</li>
+      <li>Attempt to reverse engineer, modify, or tamper with the App</li>
+      <li>Use automated tools to access the App's AI features in bulk</li>
+      <li>Attempt to circumvent subscription restrictions or rate limits</li>
+      <li>Submit content that is abusive, offensive, or violates any applicable law</li>
     </ul>
+    <p>We reserve the right to suspend or terminate your access for violations of these Terms.</p>
 
-    <h2>5. User Content</h2>
-    <p>You retain ownership of all content you create or upload in Gymi, including workout logs, journal entries, progress photos, and community messages ("User Content").</p>
-    <p>By using Gymi, you grant us a limited, non-exclusive, royalty-free license to store, process, and display your User Content solely for the purpose of operating and providing the Service to you.</p>
-    <p>You are responsible for your User Content. You agree not to upload or share content that:</p>
-    <ul>
-      <li>Is unlawful, harmful, harassing, defamatory, or obscene</li>
-      <li>Infringes the intellectual property rights of any third party</li>
-      <li>Contains viruses, malware, or other harmful code</li>
-      <li>Impersonates any person or entity</li>
-      <li>Promotes dangerous activities or substances</li>
-    </ul>
-    <p>We reserve the right to remove User Content that violates these Terms without prior notice.</p>
+    <h2>6. Intellectual Property</h2>
+    <p>All content, design, code, and AI-generated workout plans produced by Gymi are the property of Petruccelli Labs or its licensors. Workout plans generated for you are licensed for your personal use only and may not be redistributed or sold.</p>
 
-    <h2>6. Gym &amp; Coach Relationships</h2>
-    <p>Gymi may allow you to connect with gyms and coaches by entering a gym join code. When you join a gym on Gymi:</p>
-    <ul>
-      <li>Your profile name, initials, and activity may be visible to your coach and gym staff</li>
-      <li>Your coach may deploy workout programs and schedules to your account</li>
-      <li>You can leave a gym at any time from your profile settings</li>
-    </ul>
-    <p>Gymi is a technology platform. We are not responsible for the quality, safety, or content of workouts, advice, or communications provided by individual gyms or coaches using our platform. Your relationship with your gym or coach is governed by any separate agreements you have with them.</p>
+    <h2>7. Disclaimer of Warranties</h2>
+    <p>Gymi is provided "as is" and "as available" without warranties of any kind, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that the App will be uninterrupted, error-free, or that AI-generated content will be accurate or complete.</p>
 
-    <h2>7. Push Notifications</h2>
-    <p>Gymi may send you push notifications including motivational messages, workout reminders, and program updates. You may opt in or out of push notifications at any time through the app or your device settings. We use OneSignal to deliver notifications. Standard carrier message and data rates may apply.</p>
+    <h2>8. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by applicable law, Petruccelli Labs shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including personal injury, property damage, loss of data, or loss of profits, arising from your use of or inability to use the App. Our total liability to you for any claims arising under these Terms shall not exceed the amount you paid us in the 12 months preceding the claim.</p>
 
-    <h2>8. Acceptable Use</h2>
-    <p>You agree to use Gymi only for lawful purposes and in a manner that does not infringe the rights of others. You must not:</p>
-    <ul>
-      <li>Attempt to gain unauthorized access to any part of the Service or its infrastructure</li>
-      <li>Use automated bots, scrapers, or similar tools to access the Service</li>
-      <li>Reverse engineer, decompile, or disassemble any part of the app</li>
-      <li>Use the Service to spam, harass, or threaten other users</li>
-      <li>Create multiple accounts to evade a ban or restriction</li>
-      <li>Use the Service for commercial purposes without our written permission</li>
-    </ul>
+    <h2>9. Governing Law</h2>
+    <p>These Terms are governed by the laws of the State of New York, United States, without regard to its conflict of law provisions. Any disputes shall be resolved exclusively in the state or federal courts located in New York County, New York.</p>
 
-    <h2>9. Intellectual Property</h2>
-    <p>All aspects of the Gymi app and website — including the name "Gymi," logo, design, code, text, graphics, and features — are the intellectual property of Gymi and are protected by applicable copyright, trademark, and other laws.</p>
-    <p>You may not copy, modify, distribute, sell, or lease any part of our Service or its content without our prior written consent.</p>
+    <h2>10. Changes to Terms</h2>
+    <p>We reserve the right to modify these Terms at any time. Updated Terms will be posted in the App with a revised date. Your continued use of the App after changes are posted constitutes acceptance of the updated Terms.</p>
 
-    <h2>10. Privacy</h2>
-    <p>Your use of Gymi is also governed by our <a href="/privacypolicy">Privacy Policy</a>, which is incorporated into these Terms by reference. By using Gymi, you agree to the collection and use of your data as described in our Privacy Policy.</p>
-
-    <h2>11. Termination</h2>
-    <p>You may stop using Gymi and delete your account at any time from your Profile settings. We may suspend or terminate your account if you violate these Terms, engage in abusive behavior, or for any other reason at our sole discretion, with or without notice.</p>
-    <p>Upon termination, your right to use the Service ceases immediately. Sections that by their nature should survive termination (including Sections 4, 9, 12, 13, and 14) will continue to apply.</p>
-
-    <h2>12. Disclaimer of Warranties</h2>
-    <p>Gymi is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. We do not warrant that:</p>
-    <ul>
-      <li>The Service will be uninterrupted, error-free, or secure</li>
-      <li>Any data stored in the Service will not be lost or corrupted</li>
-      <li>The Service will meet your specific requirements or expectations</li>
-    </ul>
-    <p>To the fullest extent permitted by law, we disclaim all warranties, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
-
-    <h2>13. Limitation of Liability</h2>
-    <p>To the maximum extent permitted by applicable law, Gymi and its officers, directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages — including loss of data, personal injury, or property damage — arising from your use of or inability to use the Service, even if we have been advised of the possibility of such damages.</p>
-    <p>Our total liability to you for any claims arising from these Terms or your use of Gymi shall not exceed the amount you paid us in the twelve months preceding the claim (or $100 USD if you have not made any payments).</p>
-
-    <h2>14. Governing Law &amp; Disputes</h2>
-    <p>These Terms are governed by and construed in accordance with the laws of the United States, without regard to conflict of law principles. Any dispute arising from these Terms or your use of Gymi that cannot be resolved informally shall be submitted to binding arbitration in accordance with the rules of the American Arbitration Association, conducted in English.</p>
-    <p>You waive any right to participate in a class action lawsuit or class-wide arbitration against Gymi.</p>
-
-    <h2>15. Changes to These Terms</h2>
-    <p>We may revise these Terms from time to time. When we make material changes, we will update the "Last Updated" date and, where appropriate, notify you via email or in-app notice. Your continued use of Gymi after the changes take effect constitutes your acceptance of the revised Terms.</p>
-    <p>If you do not agree to the revised Terms, you must stop using Gymi and delete your account.</p>
-
-    <h2>16. Contact Us</h2>
-    <p>If you have questions about these Terms, please reach out:</p>
-    <ul>
-      <li><strong>Email:</strong> <a href="mailto:legal@getgymi.ai">legal@getgymi.ai</a></li>
-      <li><strong>General Support:</strong> <a href="mailto:support@getgymi.ai">support@getgymi.ai</a></li>
-      <li><strong>Website:</strong> <a href="https://getgymi.ai">getgymi.ai</a></li>
-    </ul>
+    <h2>11. Contact Us</h2>
+    <p>For questions about these Terms, please contact:</p>
+    <p>
+      <strong>Petruccelli Labs</strong><br>
+      <a href="mailto:legal@gymiapp.com">legal@gymiapp.com</a>
+    </p>
 
     <div class="doc-footer">
       <div class="doc-footer-links">
         <a href="/consumer" class="doc-footer-link">← Back to Gymi</a>
         <a href="/privacypolicy" class="doc-footer-link">Privacy Policy</a>
-        <a href="mailto:support@getgymi.ai" class="doc-footer-link">Support</a>
+        <a href="mailto:legal@gymiapp.com" class="doc-footer-link">Contact</a>
       </div>
-      <div class="doc-footer-copy">&copy; 2025 Gymi. All rights reserved.</div>
+      <div class="doc-footer-copy">&copy; 2025 Petruccelli Labs. All rights reserved.</div>
     </div>
   </div>
-
 </body>
 </html>
