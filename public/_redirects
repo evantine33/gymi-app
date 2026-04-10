@@ -1,2 +1,5 @@
-/        /landing.html   200
-/*       /index.html     200
+/              /landing.html       200
+/consumer      /consumer.html      200
+/privacypolicy /privacypolicy.html 200
+/terms         /terms.html         200
+/*             /index.html         200

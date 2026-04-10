@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Gymi</title>
+  <meta name="description" content="Gymi Privacy Policy — how we collect, use, and protect your personal information." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f97316;
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --bg3: #141414;
+      --border: rgba(255,255,255,0.07);
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --subtle: #52525b;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-text { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* CONTENT */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 24px 100px;
+    }
+    .doc-label {
+      display: inline-block;
+      background: rgba(249,115,22,0.1);
+      border: 1px solid rgba(249,115,22,0.25);
+      color: var(--orange);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .doc-title {
+      font-size: 2.6rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .doc-meta {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-top: 48px;
+      margin-bottom: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 20px;
+      background: var(--orange);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    p {
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+    ul {
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding-left: 20px;
+      font-size: 0.95rem;
+    }
+    ul li { margin-bottom: 8px; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .info-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 24px 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+    .doc-footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .doc-footer-links { display: flex; gap: 20px; }
+    .doc-footer-link {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .doc-footer-link:hover { color: var(--text); }
+    .doc-footer-copy { color: var(--subtle); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/consumer" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <path d="M6 4v16M18 4v16M2 9h4M18 9h4M2 15h4M18 15h4"/>
+        </svg>
+      </div>
+      <span class="nav-logo-text">Gymi</span>
+    </a>
+    <a href="/consumer" class="nav-back">
+      ← Back to Gymi
+    </a>
+  </nav>
+
+  <div class="container">
+    <div class="doc-label">Legal</div>
+    <h1 class="doc-title">Privacy Policy</h1>
+    <p class="doc-meta">
+      <strong>Effective Date:</strong> April 10, 2025 &nbsp;·&nbsp;
+      <strong>Last Updated:</strong> April 10, 2025 &nbsp;·&nbsp;
+      Applies to the Gymi mobile application and getgymi.ai
+    </p>
+
+    <div class="info-box">
+      <strong>Summary:</strong> Gymi collects only the data needed to power your fitness experience. We do not sell your personal information. Your health data belongs to you.
+    </div>
+
+    <h2>1. Who We Are</h2>
+    <p>Gymi ("we," "us," or "our") operates the Gymi mobile application and the website located at <a href="https://getgymi.ai">getgymi.ai</a>. We provide a fitness tracking platform that allows individuals to log workouts, track health metrics, and connect with gyms and coaches.</p>
+    <p>If you have questions about this policy, you can contact us at <a href="mailto:privacy@getgymi.ai">privacy@getgymi.ai</a>.</p>
+
+    <h2>2. Information We Collect</h2>
+    <p>We collect information you provide directly and information generated through your use of the app.</p>
+
+    <p><strong>Account Information</strong></p>
+    <ul>
+      <li>Name and email address (required to create an account)</li>
+      <li>Phone number (optional, used for gym communication)</li>
+      <li>Password (stored in encrypted form — we never see it in plaintext)</li>
+      <li>Profile photo and initials</li>
+    </ul>
+
+    <p><strong>Fitness &amp; Health Data</strong></p>
+    <ul>
+      <li>Workout logs: exercises, sets, reps, weights, and notes</li>
+      <li>Health metrics you manually enter: body weight, body fat percentage, steps, sleep duration, caloric intake and burn, resting heart rate, blood pressure, and lean body mass</li>
+      <li>Progress photos you choose to upload</li>
+      <li>Habit tracking check-ins</li>
+      <li>Training journal entries</li>
+      <li>Benchmark and personal record data</li>
+    </ul>
+
+    <p><strong>Usage Information</strong></p>
+    <ul>
+      <li>Pages visited and features used within the app</li>
+      <li>Device type, operating system, and app version</li>
+      <li>IP address and general location (country/region level only)</li>
+      <li>Push notification preferences</li>
+    </ul>
+
+    <p><strong>Communications</strong></p>
+    <ul>
+      <li>Messages sent through the in-app community or direct messaging features</li>
+      <li>Support inquiries sent to our team</li>
+    </ul>
+
+    <h2>3. How We Use Your Information</h2>
+    <p>We use the information we collect to:</p>
+    <ul>
+      <li>Provide, operate, and improve the Gymi app and services</li>
+      <li>Display your workout history, health data, and progress to you</li>
+      <li>Connect you with your gym and coach if you join a gym on the platform</li>
+      <li>Send push notifications about new workouts, programs, and motivational content (only if you opt in)</li>
+      <li>Respond to your support requests and communications</li>
+      <li>Monitor and analyze usage to improve app performance and features</li>
+      <li>Detect and prevent fraud, abuse, or violations of our Terms of Service</li>
+      <li>Comply with legal obligations</li>
+    </ul>
+
+    <h2>4. Health Data</h2>
+    <p>We treat your health and fitness data with the highest level of care. <strong>We do not sell, share, or license your health metrics, body measurements, or progress photos to any third party for advertising or commercial purposes.</strong></p>
+    <p>Health data you enter into Gymi is stored securely and is only accessible to you and, if you are a member of a gym on our platform, to coaches you have explicitly connected with through the app.</p>
+    <p>Gymi does not currently integrate directly with Apple HealthKit or Google Fit. All health data is entered manually by you.</p>
+
+    <h2>5. How We Share Your Information</h2>
+    <p>We do not sell your personal information. We may share your information only in the following limited circumstances:</p>
+
+    <p><strong>With Your Gym / Coach</strong></p>
+    <p>If you join a gym using a join code, your name, profile initials, workout activity, and program status will be visible to your coach and gym staff on the Gymi coaching platform. You can leave a gym at any time from your profile settings.</p>
+
+    <p><strong>Service Providers</strong></p>
+    <ul>
+      <li><strong>Supabase</strong> — database and authentication hosting (data stored in secure cloud infrastructure)</li>
+      <li><strong>OneSignal</strong> — push notification delivery (only if you opt in to notifications)</li>
+      <li><strong>Netlify</strong> — website and web app hosting</li>
+    </ul>
+    <p>These providers are contractually obligated to protect your data and may only use it to provide services to us.</p>
+
+    <p><strong>Legal Requirements</strong></p>
+    <p>We may disclose your information if required by law, court order, or government authority, or if we believe in good faith that disclosure is necessary to protect the rights, safety, or property of Gymi, our users, or the public.</p>
+
+    <p><strong>Business Transfers</strong></p>
+    <p>If Gymi is acquired by or merges with another company, your information may be transferred as part of that transaction. We will notify you via email or in-app notice before that occurs.</p>
+
+    <h2>6. Data Storage &amp; Security</h2>
+    <p>Your data is stored using Supabase, which provides encrypted storage and secure authentication. We use Row Level Security (RLS) policies to ensure each user can only access their own data.</p>
+    <p>We implement industry-standard security measures including:</p>
+    <ul>
+      <li>Encrypted data transmission (HTTPS/TLS)</li>
+      <li>Encrypted password storage (never stored in plaintext)</li>
+      <li>Database-level access controls</li>
+      <li>Regular security reviews</li>
+    </ul>
+    <p>No system is 100% secure. If you believe your account has been compromised, contact us immediately at <a href="mailto:security@getgymi.ai">security@getgymi.ai</a>.</p>
+
+    <h2>7. Data Retention</h2>
+    <p>We retain your account and fitness data for as long as your account is active. If you delete your account, we will delete your personal data within 30 days, except where we are required by law to retain it longer.</p>
+    <p>Progress photos are deleted from our servers upon account deletion or when you delete them individually within the app.</p>
+
+    <h2>8. Your Rights &amp; Choices</h2>
+    <p>You have the following rights regarding your data:</p>
+    <ul>
+      <li><strong>Access</strong> — You can view all of your fitness and health data directly in the app at any time.</li>
+      <li><strong>Correction</strong> — You can edit or delete any data you've entered, including health entries and journal posts.</li>
+      <li><strong>Deletion</strong> — You can delete your account and all associated data from your Profile settings, or by contacting <a href="mailto:privacy@getgymi.ai">privacy@getgymi.ai</a>.</li>
+      <li><strong>Data Export</strong> — You may request a copy of your data by emailing us at <a href="mailto:privacy@getgymi.ai">privacy@getgymi.ai</a>. We will provide it within 30 days.</li>
+      <li><strong>Opt Out of Notifications</strong> — You can turn off push notifications at any time in your device settings or within the Gymi app.</li>
+    </ul>
+
+    <h2>9. Children's Privacy</h2>
+    <p>Gymi is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has created an account, please contact us at <a href="mailto:privacy@getgymi.ai">privacy@getgymi.ai</a> and we will delete the account promptly.</p>
+
+    <h2>10. Push Notifications</h2>
+    <p>With your permission, Gymi may send you push notifications including daily motivational quotes, new workout alerts, and program updates. You can opt in or out within the app (Profile → Notifications) or through your device's notification settings. We use OneSignal to deliver notifications. Your push subscription token is shared with OneSignal for this purpose only.</p>
+
+    <h2>11. Cookies &amp; Tracking</h2>
+    <p>Our website (getgymi.ai) uses standard browser cookies for session management. We do not use third-party advertising cookies or tracking pixels. The Gymi app uses device storage (local storage) to cache your data for offline performance — this data never leaves your device except when synced to our secure servers.</p>
+
+    <h2>12. Third-Party Links</h2>
+    <p>The app and website may contain links to third-party websites (such as app store pages). We are not responsible for the privacy practices of those sites and encourage you to review their policies independently.</p>
+
+    <h2>13. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we make material changes, we will update the "Last Updated" date at the top of this page and, where appropriate, notify you via email or in-app notice. Your continued use of Gymi after changes are posted constitutes your acceptance of the updated policy.</p>
+
+    <h2>14. Contact Us</h2>
+    <p>If you have questions, concerns, or requests related to this Privacy Policy, please contact us:</p>
+    <ul>
+      <li><strong>Email:</strong> <a href="mailto:privacy@getgymi.ai">privacy@getgymi.ai</a></li>
+      <li><strong>General Support:</strong> <a href="mailto:support@getgymi.ai">support@getgymi.ai</a></li>
+      <li><strong>Website:</strong> <a href="https://getgymi.ai">getgymi.ai</a></li>
+    </ul>
+
+    <div class="doc-footer">
+      <div class="doc-footer-links">
+        <a href="/consumer" class="doc-footer-link">← Back to Gymi</a>
+        <a href="/terms" class="doc-footer-link">Terms &amp; Conditions</a>
+        <a href="mailto:support@getgymi.ai" class="doc-footer-link">Support</a>
+      </div>
+      <div class="doc-footer-copy">&copy; 2025 Gymi. All rights reserved.</div>
+    </div>
+  </div>
+
+</body>
+</html>
