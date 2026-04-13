@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — Gymi AI Workouts</title>
+  <meta name="description" content="Get support for Gymi AI Workouts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #3b82f6;
+      --blue-dim: #2563eb;
+      --bg: #080810; --bg2: #0d0d1a; --bg3: #12121f;
+      --border: rgba(255,255,255,0.07);
+      --text: #ffffff; --muted: #a1a1aa; --subtle: #52525b;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 64px;
+      border-bottom: 1px solid var(--border); background: var(--bg2);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 30px; height: 30px; border-radius: 7px; }
+    .nav-logo-text { font-size: 1.05rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-back { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 60px 24px;
+      position: relative; overflow: hidden;
+    }
+    .glow {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(59,130,246,0.09) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .card {
+      position: relative; z-index: 1;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 28px; padding: 56px 48px;
+      max-width: 480px; width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    }
+    .card-icon {
+      width: 72px; height: 72px;
+      background: rgba(59,130,246,0.12);
+      border: 1.5px solid rgba(59,130,246,0.25);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 28px;
+    }
+    h1 {
+      font-size: 2rem; font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    p {
+      color: var(--muted); font-size: 1rem; line-height: 1.65;
+      margin-bottom: 36px;
+    }
+    .support-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--blue); color: #fff;
+      text-decoration: none; font-weight: 700; font-size: 1rem;
+      padding: 15px 32px; border-radius: 14px;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      width: 100%; justify-content: center;
+    }
+    .support-btn:hover {
+      background: var(--blue-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(59,130,246,0.3);
+    }
+    .support-btn svg { flex-shrink: 0; }
+    .card-note {
+      margin-top: 20px; font-size: 0.8rem; color: var(--subtle);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 28px 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .footer-logo img { width: 26px; height: 26px; border-radius: 6px; }
+    .footer-logo-text { font-weight: 800; font-size: 0.95rem; color: var(--text); letter-spacing: -0.02em; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-link { color: var(--muted); text-decoration: none; font-size: 0.82rem; font-weight: 500; transition: color .2s; }
+    .footer-link:hover { color: var(--text); }
+    .footer-copy { color: var(--subtle); font-size: 0.78rem; }
+
+    @media (max-width: 520px) {
+      .card { padding: 40px 28px; }
+      h1 { font-size: 1.7rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/consumer" class="nav-logo">
+      <img src="/gymi-logo.png" alt="Gymi" />
+      <span class="nav-logo-text">Gymi AI Workouts</span>
+    </a>
+    <a href="/consumer" class="nav-back">← Back</a>
+  </nav>
+
+  <main>
+    <div class="glow"></div>
+    <div class="card">
+      <div class="card-icon">🎧</div>
+      <h1>Need Support?</h1>
+      <p>We're here to help. Click the button below and we'll get back to you as soon as possible.</p>
+      <a
+        href="mailto:Frankpetruccelli1@gmail.com?subject=Gymi%20AI%20Support%20Request&body=Hi%2C%0A%0AI%20need%20help%20with%20Gymi%20AI%20Workouts.%0A%0A"
+        class="support-btn"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+        Contact Support
+      </a>
+      <p class="card-note">Opens your email app with a pre-filled message ready to send.</p>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/consumer" class="footer-logo">
+      <img src="/gymi-logo.png" alt="Gymi" />
+      <span class="footer-logo-text">Gymi AI Workouts</span>
+    </a>
+    <div class="footer-links">
+      <a href="/privacypolicy" class="footer-link">Privacy Policy</a>
+      <a href="/terms" class="footer-link">Terms of Service</a>
+      <a href="/consumer" class="footer-link">Back to Gymi</a>
+    </div>
+    <div class="footer-copy">&copy; 2025 Petruccelli Labs.</div>
+  </footer>
+
+</body>
+</html>
