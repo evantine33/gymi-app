@@ -186,6 +186,46 @@ export async function getUserProgressPhotos(userId) {
   return supabase.from('progress_photos').select('*').eq('user_id', userId).order('date', { ascending: false })
 }
 
+// ─── Nutrition ────────────────────────────────────────────────────────────────
+export async function upsertNutritionGoals(goals) {
+  return supabase.from('nutrition_goals').upsert({
+    user_id: goals.userId,
+    calories: goals.calories,
+    protein: goals.protein,
+    carbs: goals.carbs,
+    fat: goals.fat,
+    fiber: goals.fiber,
+  }, { onConflict: 'user_id' })
+}
+
+export async function getUserNutritionGoals(userId) {
+  return supabase.from('nutrition_goals').select('*').eq('user_id', userId).single()
+}
+
+export async function upsertNutritionLog(log) {
+  return supabase.from('nutrition_logs').upsert({
+    id: log.id,
+    user_id: log.userId,
+    date: log.date,
+    meal: log.meal,
+    food_name: log.foodName,
+    calories: log.calories,
+    protein: log.protein,
+    carbs: log.carbs,
+    fat: log.fat,
+    fiber: log.fiber,
+    notes: log.notes || '',
+  }, { onConflict: 'id' })
+}
+
+export async function deleteNutritionLog(id) {
+  return supabase.from('nutrition_logs').delete().eq('id', id)
+}
+
+export async function getUserNutritionLogs(userId) {
+  return supabase.from('nutrition_logs').select('*').eq('user_id', userId).order('date', { ascending: false })
+}
+
 // ─── Realtime Subscriptions ───────────────────────────────────────────────────
 export function subscribeToGymWorkouts(gymId, callback) {
   return supabase

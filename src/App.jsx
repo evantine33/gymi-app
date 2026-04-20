@@ -18,6 +18,7 @@ import Benchmarks from './pages/Benchmarks'
 import Journal from './pages/Journal'
 import Store from './pages/Store'
 import Health from './pages/Health'
+import Nutrition from './pages/Nutrition'
 import { Dumbbell } from 'lucide-react'
 
 // ─── Loading Screen ────────────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ function AppRoutes() {
         <Route path="/community" element={<Community />} />
         <Route path="/messages" element={<DirectMessages />} />
         <Route path="/health" element={<Health />} />
+        <Route path="/nutrition" element={<Nutrition />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Routes>

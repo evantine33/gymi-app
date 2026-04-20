@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext'
 import {
   Dumbbell, LayoutDashboard, Users, Mail, UserCircle, ClipboardList,
   Layers, Copy, Check, UsersRound, TrendingUp, BookOpen, Bell, X,
-  Target, Menu, LogOut, NotebookPen, ShoppingBag, HeartPulse, Sun, Moon,
+  Target, Menu, LogOut, NotebookPen, ShoppingBag, HeartPulse, Sun, Moon, Salad,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -90,6 +90,7 @@ export default function Layout({ children }) {
     { to: '/dashboard', icon: LayoutDashboard, label: 'Workouts' },
     { to: '/my-programs', icon: BookOpen, label: 'Programs' },
     { to: '/health', icon: HeartPulse, label: 'Health' },
+    { to: '/nutrition', icon: Salad, label: 'Nutrition' },
     { to: '/store', icon: ShoppingBag, label: 'Store' },
     { to: '/benchmarks', icon: Target, label: 'Benchmarks' },
     { to: '/stats', icon: TrendingUp, label: 'Volume' },
@@ -129,6 +130,7 @@ export default function Layout({ children }) {
 
   const memberMore = [
     { to: '/health', icon: HeartPulse, label: 'Health' },
+    { to: '/nutrition', icon: Salad, label: 'Nutrition' },
     { to: '/store', icon: ShoppingBag, label: 'Store' },
     { to: '/benchmarks', icon: Target, label: 'Benchmarks' },
     { to: '/stats', icon: TrendingUp, label: 'Volume' },

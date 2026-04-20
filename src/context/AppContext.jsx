@@ -10,6 +10,7 @@ import {
   upsertHabitDef, deleteHabitDef, getUserHabitDefs, upsertHabitLog, deleteHabitLog, getUserHabitLogs,
   upsertHealthEntry, deleteHealthEntry, getUserHealthEntries,
   upsertProgressPhoto, deleteProgressPhoto, getUserProgressPhotos,
+  upsertNutritionGoals, getUserNutritionGoals, upsertNutritionLog, deleteNutritionLog, getUserNutritionLogs,
   subscribeToGymWorkouts, subscribeToGymLogs,
 } from '../lib/supabase'
 
@@ -296,7 +297,7 @@ const loadState = () => {
 
 const getInitialState = () => {
   const saved = loadState()
-  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], habitDefs: [], habitLogs: [], journalEntries: [], programListings: [], purchases: [], healthEntries: [], progressPhotos: [], theme: 'dark', ...saved }
+  if (saved) return { gyms: [], programs: [], notifications: [], benchmarkDefs: [], benchmarkEntries: [], habitDefs: [], habitLogs: [], journalEntries: [], programListings: [], purchases: [], healthEntries: [], progressPhotos: [], nutritionGoals: { calories: 2000, protein: 150, carbs: 200, fat: 65, fiber: 25 }, nutritionLogs: [], theme: 'dark', ...saved }
   return {
     currentUserId: null,
     gyms: [SEED_GYM],
@@ -316,6 +317,8 @@ const getInitialState = () => {
     purchases: [],
     healthEntries: [],
     progressPhotos: [],
+    nutritionGoals: { calories: 2000, protein: 150, carbs: 200, fat: 65, fiber: 25 },
+    nutritionLogs: [],
     theme: 'dark',
   }
 }
@@ -848,6 +851,34 @@ function reducer(state, action) {
         progressPhotos: (state.progressPhotos || []).filter(p => p.id !== action.photoId),
       }
 
+    // ── Nutrition ──────────────────────────────────────────────────────────
+    case 'SET_NUTRITION_GOALS':
+      return { ...state, nutritionGoals: { ...state.nutritionGoals, ...action.goals } }
+
+    case 'ADD_NUTRITION_LOG': {
+      const log = {
+        id: action.id || ('nlog-' + Date.now() + '-' + Math.random().toString(36).slice(2)),
+        userId: state.currentUserId,
+        date: action.log.date,
+        meal: action.log.meal,
+        foodName: action.log.foodName,
+        calories: action.log.calories || 0,
+        protein:  action.log.protein  || 0,
+        carbs:    action.log.carbs    || 0,
+        fat:      action.log.fat      || 0,
+        fiber:    action.log.fiber    || 0,
+        notes:    action.log.notes    || '',
+        createdAt: new Date().toISOString(),
+      }
+      return { ...state, nutritionLogs: [...(state.nutritionLogs || []), log] }
+    }
+
+    case 'DELETE_NUTRITION_LOG':
+      return {
+        ...state,
+        nutritionLogs: (state.nutritionLogs || []).filter(l => l.id !== action.logId),
+      }
+
     // ── Supabase Hydration ────────────────────────────────────────────────
     case 'HYDRATE': {
       const p = action.profile
@@ -947,7 +978,24 @@ function reducer(state, action) {
         ...remoteProgressPhotos,
       ]
 
-      return { ...state, users, gyms, workouts, workoutLogs, habitDefs, habitLogs, healthEntries, progressPhotos, currentUserId: p.id }
+      // Merge nutrition goals (single row per user)
+      const nutritionGoals = action.nutritionGoals
+        ? { calories: action.nutritionGoals.calories, protein: action.nutritionGoals.protein, carbs: action.nutritionGoals.carbs, fat: action.nutritionGoals.fat, fiber: action.nutritionGoals.fiber }
+        : (state.nutritionGoals || { calories: 2000, protein: 150, carbs: 200, fat: 65, fiber: 25 })
+
+      // Merge nutrition logs
+      const remoteNutritionLogs = (action.nutritionLogs || []).map(l => ({
+        id: l.id, userId: l.user_id, date: l.date, meal: l.meal,
+        foodName: l.food_name, calories: l.calories, protein: l.protein,
+        carbs: l.carbs, fat: l.fat, fiber: l.fiber, notes: l.notes || '',
+        createdAt: l.created_at,
+      }))
+      const nutritionLogs = [
+        ...(state.nutritionLogs || []).filter(l => l.userId !== p.id),
+        ...remoteNutritionLogs,
+      ]
+
+      return { ...state, users, gyms, workouts, workoutLogs, habitDefs, habitLogs, healthEntries, progressPhotos, nutritionGoals, nutritionLogs, currentUserId: p.id }
     }
 
     case 'HYDRATE_USER': {
@@ -997,18 +1045,22 @@ async function hydrateFromSupabase(userId, dispatch) {
   }
 
   // Fetch this user's personal data (habits, health, photos)
-  const [habitDefsRes, habitLogsRes, healthEntriesRes, progressPhotosRes] = await Promise.all([
+  const [habitDefsRes, habitLogsRes, healthEntriesRes, progressPhotosRes, nutritionGoalsRes, nutritionLogsRes] = await Promise.all([
     getUserHabitDefs(userId),
     getUserHabitLogs(userId),
     getUserHealthEntries(userId),
     getUserProgressPhotos(userId),
+    getUserNutritionGoals(userId),
+    getUserNutritionLogs(userId),
   ])
   const habitDefs = habitDefsRes.data || []
   const habitLogs = habitLogsRes.data || []
   const healthEntries = healthEntriesRes.data || []
   const progressPhotos = progressPhotosRes.data || []
+  const nutritionGoals = nutritionGoalsRes.data || null
+  const nutritionLogs = nutritionLogsRes.data || []
 
-  dispatch({ type: 'HYDRATE', profile, gym, workouts, logs, members, habitDefs, habitLogs, healthEntries, progressPhotos })
+  dispatch({ type: 'HYDRATE', profile, gym, workouts, logs, members, habitDefs, habitLogs, healthEntries, progressPhotos, nutritionGoals, nutritionLogs })
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
@@ -1078,6 +1130,9 @@ export function AppProvider({ children }) {
     }
     if (a.type === 'ADD_PROGRESS_PHOTO' && !a.id) {
       a = { ...a, id: 'photo-' + Date.now() + '-' + Math.random().toString(36).slice(2) }
+    }
+    if (a.type === 'ADD_NUTRITION_LOG' && !a.id) {
+      a = { ...a, id: 'nlog-' + Date.now() + '-' + Math.random().toString(36).slice(2) }
     }
 
     dispatch(a) // immediate local update
@@ -1180,6 +1235,15 @@ export function AppProvider({ children }) {
           break
         case 'DELETE_PROGRESS_PHOTO':
           await deleteProgressPhoto(a.photoId)
+          break
+        case 'SET_NUTRITION_GOALS':
+          await upsertNutritionGoals({ ...a.goals, userId: s.currentUserId })
+          break
+        case 'ADD_NUTRITION_LOG':
+          await upsertNutritionLog({ ...a.log, id: a.id, userId: s.currentUserId })
+          break
+        case 'DELETE_NUTRITION_LOG':
+          await deleteNutritionLog(a.logId)
           break
       }
     } catch (err) {
